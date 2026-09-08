@@ -95,6 +95,26 @@
   background-size: 16px 16px;
 }
 
+.paper-dot-grain {
+  background-color: #FAF5EC;
+  background-image: radial-gradient(rgba(175, 155, 130, 0.16) 0.85px, transparent 0.85px);
+  background-size: 13px 13px;
+}
+
+.shadow-floating-terracotta {
+  box-shadow: 
+    0 6px 16px -2px rgba(162, 77, 51, 0.45),
+    0 2px 5px rgba(162, 77, 51, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.shadow-inner-card-float {
+  box-shadow:
+    0 4px 20px -2px rgba(35, 28, 20, 0.09),
+    0 1px 3px rgba(35, 28, 20, 0.05),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 5px;

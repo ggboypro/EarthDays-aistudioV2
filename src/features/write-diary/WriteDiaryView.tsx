@@ -272,7 +272,7 @@ export const WriteDiaryView: React.FC<WriteDiaryViewProps> = ({
       animate={{ opacity: isPublishing ? 0 : 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: isPublishing ? 0.35 : 0.2, ease: 'easeOut' }}
-      className="fixed inset-0 z-50 bg-[rgba(35,29,24,0.30)] backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto select-none sm:select-auto"
+      className="fixed inset-0 z-50 bg-[rgba(35,29,24,0.38)] backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto select-none sm:select-auto"
     >
       {/* Hidden File Input */}
       <input
@@ -293,95 +293,280 @@ export const WriteDiaryView: React.FC<WriteDiaryViewProps> = ({
         className="hidden"
       />
 
-      {/* Real Paper Writing Sheet Card */}
+      {/* 
+        Outer Base Card Layer (最外边一层卡片底座)
+        Creating the double-layered superimposed card effect from mockup
+      */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 20 }}
+        initial={{ opacity: 0, scale: 0.95, y: 24 }}
         animate={{
           opacity: 1,
           scale: isPublishing ? 0.88 : 1,
           y: isPublishing ? -200 : 0,
         }}
-        exit={{ opacity: 0, scale: 0.96, y: 20 }}
+        exit={{ opacity: 0, scale: 0.95, y: 24 }}
         transition={{
           duration: isPublishing ? 0.4 : 0.25,
           ease: isPublishing ? [0.16, 1, 0.3, 1] : 'easeOut',
         }}
-        className="relative w-full max-w-[460px] bg-[#FBF8F2] rounded-[24px] border border-[#DED6C9] shadow-[0_16px_36px_-6px_rgba(35,28,20,0.16)] overflow-hidden flex flex-col my-auto max-h-[92vh]"
+        className="relative w-full max-w-[480px] bg-[#F3EEE4] rounded-[32px] p-2.5 border border-[#E2D7C5] shadow-[0_24px_60px_-12px_rgba(35,28,20,0.32)] flex flex-col my-auto max-h-[92vh] overflow-hidden"
       >
-        {/* 1. Header: 取消  写日记  发布 */}
-        <header className="px-6 py-4 flex items-center justify-between border-b border-[#E5DDD1] shrink-0 bg-[#FBF8F2] z-10">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isPublishing}
-            className="font-serif-sc text-[14px] text-[#766C60] hover:text-[#302820] cursor-pointer disabled:opacity-30 transition-colors"
-          >
-            取消
-          </button>
-
-          <h1 className="font-serif-sc text-[17px] font-medium text-[#302820] tracking-wide">
-            写日记
-          </h1>
-
-          <button
-            type="button"
-            onClick={handlePublish}
-            disabled={isPublishing}
-            className="bg-[#B45C42] hover:bg-[#A9513A] active:bg-[#96432E] text-[#FFF9F2] font-serif-sc text-[14px] px-4 py-1.5 rounded-[10px] font-medium transition-all disabled:opacity-50 cursor-pointer"
-          >
-            {isPublishing ? '发布中...' : '发布'}
-          </button>
-        </header>
-
-        {/* Scrollable Content Paper Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 relative z-10">
-          {/* 2. Date & Mood Row */}
-          <div className="flex items-center justify-between">
-            {/* Date Picker Trigger */}
+        {/* 
+          Inner Floating Card Layer (里层悬浮的日记纸张卡片)
+          Features delicate dot matrix grain texture (paper-dot-grain)
+        */}
+        <div className="w-full h-full rounded-[24px] bg-[#FAF5EC] paper-dot-grain border border-[#EAE1D1] shadow-inner-card-float flex flex-col relative overflow-hidden">
+          
+          {/* 1. Header Bar: 取消  写日记  [悬浮发布按钮] */}
+          <header className="px-6 py-4 flex items-center justify-between border-b border-[#E7DEC8] shrink-0 bg-[#FAF5EC]/90 backdrop-blur-xs z-20">
             <button
               type="button"
-              onClick={() =>
-                dateInputRef.current?.showPicker
-                  ? dateInputRef.current.showPicker()
-                  : dateInputRef.current?.click()
-              }
-              className="flex items-center gap-1 font-serif-sc text-[13.5px] text-[#766C60] hover:text-[#302820] cursor-pointer transition-colors"
+              onClick={onClose}
+              disabled={isPublishing}
+              className="font-serif-sc text-[14.5px] text-[#736556] hover:text-[#302820] cursor-pointer disabled:opacity-30 transition-colors"
             >
-              <span>{diaryDate}</span>
-              <span>{dayOfWeek}</span>
-              <ChevronDown size={13} className="text-[#9A9084]" />
+              取消
             </button>
 
-            {/* Mood Selector Dropdown */}
-            <div className="relative">
+            <h1 className="font-serif-sc text-[18px] font-semibold text-[#302820] tracking-wide">
+              写日记
+            </h1>
+
+            {/* Right Top Floating Publish Button with Elevated 3D Depth */}
+            <button
+              type="button"
+              onClick={handlePublish}
+              disabled={isPublishing}
+              className="bg-[#A24D33] hover:bg-[#96432E] active:bg-[#853825] text-[#FFF9F2] font-serif-sc text-[14px] px-4.5 py-1.5 rounded-[10px] font-medium shadow-floating-terracotta border border-[#C26248]/30 transition-all cursor-pointer disabled:opacity-50 transform hover:-translate-y-0.5 active:translate-y-0"
+            >
+              {isPublishing ? '发布中...' : '发布'}
+            </button>
+          </header>
+
+          {/* Scrollable Content Paper Body */}
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 relative z-10">
+            
+            {/* 2. Date & Mood Row */}
+            <div className="flex items-center justify-between">
+              {/* Date Picker Trigger */}
               <button
                 type="button"
-                onClick={() => setShowMoodPicker(!showMoodPicker)}
-                className="flex items-center gap-1 font-serif-sc text-[13.5px] text-[#766C60] hover:text-[#302820] cursor-pointer transition-colors"
+                onClick={() =>
+                  dateInputRef.current?.showPicker
+                    ? dateInputRef.current.showPicker()
+                    : dateInputRef.current?.click()
+                }
+                className="flex items-center gap-1 font-serif-sc text-[13.5px] text-[#6B5E50] hover:text-[#302820] cursor-pointer transition-colors"
               >
-                <Sun size={15} className="text-[#B45C42] fill-[#B45C42]/15" />
-                <span>{activeMoodObj.label}</span>
-                <ChevronDown size={13} className="text-[#9A9084]" />
+                <span>{diaryDate}</span>
+                <span>{dayOfWeek}</span>
+                <ChevronDown size={13} className="text-[#9E9181]" />
               </button>
 
-              {/* Mood Dropdown */}
-              {showMoodPicker && (
-                <div className="absolute right-0 top-full mt-1 z-40 p-1.5 bg-[#FAF7F1] border border-[#DED6C9] rounded-[9px] shadow-lg flex gap-1.5">
-                  {MOOD_PRESETS.map((m) => (
+              {/* Mood Selector Dropdown */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowMoodPicker(!showMoodPicker)}
+                  className="flex items-center gap-1 font-serif-sc text-[13.5px] text-[#52453B] hover:text-[#302820] cursor-pointer transition-colors"
+                >
+                  <Sun size={15} className="text-[#D86B27] fill-[#D86B27]/15" />
+                  <span>{activeMoodObj.label}</span>
+                  <ChevronDown size={13} className="text-[#9E9181]" />
+                </button>
+
+                {/* Mood Dropdown */}
+                {showMoodPicker && (
+                  <div className="absolute right-0 top-full mt-1 z-40 p-1.5 bg-[#FAF5EC] border border-[#E7DEC8] rounded-[10px] shadow-lg flex gap-1.5">
+                    {MOOD_PRESETS.map((m) => (
+                      <button
+                        key={m.type}
+                        type="button"
+                        onClick={() => {
+                          setSelectedMood(m.type);
+                          setShowMoodPicker(false);
+                        }}
+                        className={`px-2.5 py-1 rounded-[6px] hover:bg-[#EFE7D8] cursor-pointer flex items-center gap-1 font-serif-sc text-[12.5px] transition-colors ${
+                          selectedMood === m.type
+                            ? 'bg-[#EFE7D8] text-[#302820] font-medium'
+                            : 'text-[#6B5E50]'
+                        }`}
+                      >
+                        <MoodStamp mood={{ type: m.type, label: m.label }} size={14} />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 3. Title Input */}
+            <div className="pt-1">
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="标题"
+                className="w-full font-serif-sc text-[22px] font-bold text-[#302820] placeholder:text-[#B8AC9C] bg-transparent border-none outline-none tracking-tight py-0.5"
+              />
+            </div>
+
+            {/* 4. Body Text Area */}
+            <div>
+              <textarea
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                placeholder="写下今天的日子、心绪，或者发生的微小瞬间……"
+                rows={7}
+                className="w-full font-serif-sc text-[15px] text-[#302820] placeholder:text-[#B8AC9C] bg-transparent border-none outline-none resize-none leading-[1.85] tracking-normal min-h-[160px]"
+              />
+            </div>
+
+            {/* 5. Photos Row */}
+            <div className="pt-1 flex items-center gap-2.5 overflow-x-auto pb-1">
+              {photos.map((photo) => (
+                <div
+                  key={photo.id}
+                  className="relative shrink-0 w-[72px] h-[72px] rounded-[6px] overflow-hidden bg-white p-[3px] border border-[#E2D7C5] shadow-sm"
+                >
+                  <img
+                    src={photo.url}
+                    alt=""
+                    className="w-full h-full object-cover rounded-[3px]"
+                    referrerPolicy="no-referrer"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePhoto(photo.id)}
+                    className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#5C5043]/80 text-white flex items-center justify-center text-[10px] cursor-pointer hover:bg-[#302820] transition-colors z-10"
+                    title="删除照片"
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
+              ))}
+
+              {/* Add Photo Dashed Box */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="shrink-0 w-[72px] h-[72px] rounded-[8px] border border-dashed border-[#D2C5B2] bg-[#F2EBDE]/60 hover:bg-[#EBE2D4] flex flex-col items-center justify-center cursor-pointer transition-colors"
+              >
+                <span className="text-[17px] text-[#6B5E50] font-light leading-none mb-0.5">
+                  ＋
+                </span>
+                <span className="font-serif-sc text-[11px] text-[#6B5E50]">
+                  添加照片
+                </span>
+              </button>
+            </div>
+
+            {/* 6. Location Row */}
+            <div className="pt-2 border-y border-[#E7DEC8] py-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <MapPin size={15} className="text-[#5C5043]" />
+                  {isEditingLocation ? (
+                    <input
+                      type="text"
+                      value={locationName}
+                      onChange={(e) => setLocationName(e.target.value)}
+                      onBlur={() => {
+                        if (!locationName.trim()) setIsEditingLocation(false);
+                      }}
+                      autoFocus
+                      placeholder="例如: 上海 · 公园"
+                      className="font-serif-sc text-[13.5px] text-[#302820] bg-transparent border-b border-dashed border-[#D2C5B2] outline-none px-1 py-0.5 w-44"
+                    />
+                  ) : (
+                    <span
+                      onClick={() => setIsEditingLocation(true)}
+                      className="font-serif-sc text-[13.5px] text-[#302820] cursor-pointer"
+                    >
+                      {locationName || '添加位置'}
+                    </span>
+                  )}
+                </div>
+
+                {locationName.trim() && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLocationName('');
+                      setIsEditingLocation(false);
+                    }}
+                    className="w-4 h-4 rounded-full bg-[#E3D9C9] text-[#5C5043] flex items-center justify-center cursor-pointer hover:bg-[#D4C8B6] transition-colors"
+                    title="清除位置"
+                  >
+                    <X size={10} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* 7. Ledger Selection Row */}
+            <div className="pt-1 relative pb-6">
+              <div className="flex items-center justify-between py-1">
+                <div className="flex items-center gap-2">
+                  {activeLedgerObj.coverImage ? (
+                    <img
+                      src={activeLedgerObj.coverImage}
+                      alt=""
+                      className="w-7 h-7 rounded-[4px] object-cover border border-[#D2C5B2]"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 rounded-[4px] bg-[#F2EBDE] border border-[#D2C5B2] flex items-center justify-center text-[12px]">
+                      🐕
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1 font-serif-sc text-[13.5px] text-[#302820]">
+                    <span className="text-[#6B5E50]">放入账本：</span>
+                    <span className="font-medium">{activeLedgerObj.name}</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowLedgerPicker(!showLedgerPicker)}
+                  className="flex items-center gap-0.5 font-serif-sc text-[13px] text-[#736556] hover:text-[#302820] cursor-pointer"
+                >
+                  <span>更换</span>
+                  <ChevronRight size={13} />
+                </button>
+              </div>
+
+              {/* Ledger Picker Dropdown */}
+              {showLedgerPicker && (
+                <div className="absolute left-0 right-0 bottom-full mb-1 z-40 bg-[#FAF5EC] border border-[#E7DEC8] rounded-[10px] shadow-lg p-1.5 space-y-1 max-h-48 overflow-y-auto">
+                  {ledgers.map((l) => (
                     <button
-                      key={m.type}
+                      key={l.id}
                       type="button"
                       onClick={() => {
-                        setSelectedMood(m.type);
-                        setShowMoodPicker(false);
+                        setSelectedLedgerId(l.id);
+                        setShowLedgerPicker(false);
                       }}
-                      className={`px-2.5 py-1 rounded-[6px] hover:bg-[#EEE7DC] cursor-pointer flex items-center gap-1 font-serif-sc text-[12.5px] transition-colors ${
-                        selectedMood === m.type
-                          ? 'bg-[#EEE7DC] text-[#302820] font-medium'
-                          : 'text-[#766C60]'
+                      className={`w-full flex items-center justify-between p-2 rounded-[6px] text-left hover:bg-[#EFE7D8] cursor-pointer transition-colors ${
+                        selectedLedgerId === l.id ? 'bg-[#EFE7D8] font-medium' : ''
                       }`}
                     >
-                      <MoodStamp mood={{ type: m.type, label: m.label }} size={14} />
+                      <div className="flex items-center gap-2">
+                        {l.coverImage && (
+                          <img
+                            src={l.coverImage}
+                            alt=""
+                            className="w-5 h-5 object-cover rounded-[3px]"
+                            referrerPolicy="no-referrer"
+                          />
+                        )}
+                        <span className="font-serif-sc text-[13px] text-[#302820]">
+                          {l.name}
+                        </span>
+                      </div>
+                      <span className="font-serif-sc text-[11px] text-[#9E9181]">
+                        {l.entryCount}篇
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -389,182 +574,9 @@ export const WriteDiaryView: React.FC<WriteDiaryViewProps> = ({
             </div>
           </div>
 
-          {/* 3. Title Input (Written directly on Paper) */}
-          <div className="pt-1">
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="标题"
-              className="w-full font-serif-sc text-[21px] font-semibold text-[#302820] placeholder:text-[#B5ACA0] bg-transparent border-none outline-none tracking-tight py-0.5"
-            />
-          </div>
-
-          {/* 4. Body Text Area (Written directly on Paper) */}
-          <div>
-            <textarea
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="写下今天的日子、心绪，或者发生的微小瞬间……"
-              rows={7}
-              className="w-full font-serif-sc text-[15px] text-[#302820] placeholder:text-[#B5ACA0] bg-transparent border-none outline-none resize-none leading-[1.85] tracking-normal min-h-[160px]"
-            />
-          </div>
-
-          {/* 5. Photos Row */}
-          <div className="pt-1 flex items-center gap-2.5 overflow-x-auto pb-1">
-            {photos.map((photo) => (
-              <div
-                key={photo.id}
-                className="relative shrink-0 w-[72px] h-[72px] rounded-[4px] overflow-hidden bg-white p-[3px] border border-[#E4DDD2] shadow-sm"
-              >
-                <img
-                  src={photo.url}
-                  alt=""
-                  className="w-full h-full object-cover rounded-[2px]"
-                  referrerPolicy="no-referrer"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemovePhoto(photo.id)}
-                  className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#302820]/70 text-[#FBF8F2] flex items-center justify-center text-[10px] cursor-pointer hover:bg-[#302820] transition-colors"
-                  title="删除照片"
-                >
-                  <X size={10} />
-                </button>
-              </div>
-            ))}
-
-            {/* Add Photo Dashed Box */}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="shrink-0 w-[72px] h-[72px] rounded-[8px] border border-dashed border-[#DED6C9] bg-[#FAF7F1] hover:bg-[#EEE7DC] flex flex-col items-center justify-center cursor-pointer transition-colors"
-            >
-              <span className="text-[17px] text-[#766C60] font-light leading-none mb-0.5">
-                ＋
-              </span>
-              <span className="font-serif-sc text-[11px] text-[#766C60]">
-                添加照片
-              </span>
-            </button>
-          </div>
-
-          {/* 6. Location Row */}
-          <div className="pt-2 border-t border-[#E5DDD1]">
-            <div className="flex items-center justify-between py-1">
-              <div className="flex items-center gap-1.5">
-                <MapPin size={15} className="text-[#766C60]" />
-                {isEditingLocation ? (
-                  <input
-                    type="text"
-                    value={locationName}
-                    onChange={(e) => setLocationName(e.target.value)}
-                    onBlur={() => {
-                      if (!locationName.trim()) setIsEditingLocation(false);
-                    }}
-                    autoFocus
-                    placeholder="例如: 上海 · 公园"
-                    className="font-serif-sc text-[13.5px] text-[#302820] bg-transparent border-b border-dashed border-[#DED6C9] outline-none px-1 py-0.5 w-44"
-                  />
-                ) : (
-                  <span
-                    onClick={() => setIsEditingLocation(true)}
-                    className="font-serif-sc text-[13.5px] text-[#302820] cursor-pointer"
-                  >
-                    {locationName || '添加位置'}
-                  </span>
-                )}
-              </div>
-
-              {locationName.trim() && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLocationName('');
-                    setIsEditingLocation(false);
-                  }}
-                  className="w-4 h-4 rounded-full bg-[#E5DDD1] text-[#766C60] flex items-center justify-center cursor-pointer hover:bg-[#DED6C9] transition-colors"
-                  title="清除位置"
-                >
-                  <X size={10} />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* 7. Ledger Selection Row */}
-          <div className="pt-2 border-t border-[#E5DDD1] relative pb-8">
-            <div className="flex items-center justify-between py-1">
-              <div className="flex items-center gap-2">
-                {activeLedgerObj.coverImage ? (
-                  <img
-                    src={activeLedgerObj.coverImage}
-                    alt=""
-                    className="w-7 h-7 rounded-[4px] object-cover border border-[#DED6C9]"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="w-7 h-7 rounded-[4px] bg-[#FAF7F1] border border-[#DED6C9] flex items-center justify-center text-[12px]">
-                    🐕
-                  </div>
-                )}
-                <div className="flex items-center gap-1 font-serif-sc text-[13.5px] text-[#302820]">
-                  <span className="text-[#766C60]">放入账本：</span>
-                  <span className="font-medium">{activeLedgerObj.name}</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowLedgerPicker(!showLedgerPicker)}
-                className="flex items-center gap-0.5 font-serif-sc text-[13px] text-[#766C60] hover:text-[#302820] cursor-pointer"
-              >
-                <span>更换</span>
-                <ChevronRight size={13} />
-              </button>
-            </div>
-
-            {/* Ledger Picker Dropdown */}
-            {showLedgerPicker && (
-              <div className="absolute left-0 right-0 bottom-full mb-1 z-40 bg-[#FAF7F1] border border-[#DED6C9] rounded-[9px] shadow-lg p-1.5 space-y-1 max-h-48 overflow-y-auto">
-                {ledgers.map((l) => (
-                  <button
-                    key={l.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedLedgerId(l.id);
-                      setShowLedgerPicker(false);
-                    }}
-                    className={`w-full flex items-center justify-between p-2 rounded-[6px] text-left hover:bg-[#EEE7DC] cursor-pointer transition-colors ${
-                      selectedLedgerId === l.id ? 'bg-[#EEE7DC] font-medium' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      {l.coverImage && (
-                        <img
-                          src={l.coverImage}
-                          alt=""
-                          className="w-5 h-5 object-cover rounded-[3px]"
-                          referrerPolicy="no-referrer"
-                        />
-                      )}
-                      <span className="font-serif-sc text-[13px] text-[#302820]">
-                        {l.name}
-                      </span>
-                    </div>
-                    <span className="font-serif-sc text-[11px] text-[#9A9084]">
-                      {l.entryCount}篇
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* 8. Botanical Illustration & Handwriting Script Watermark (Bottom Right) */}
+          <BotanicalWatermark />
         </div>
-
-        {/* 8. Botanical Illustration & Handwriting Script Watermark (Bottom Right) */}
-        <BotanicalWatermark />
       </motion.div>
     </motion.div>
   );

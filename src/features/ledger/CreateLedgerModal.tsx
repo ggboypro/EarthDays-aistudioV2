@@ -81,21 +81,22 @@ export const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-60 bg-black/50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-60 bg-[rgba(35,29,24,0.30)] backdrop-blur-xs flex items-center justify-center p-4">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-md bg-[#FAF7F2] rounded-[8px] border border-[#DDD3C4] shadow-2xl p-6 overflow-hidden"
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 12 }}
+        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md bg-[#FBF8F2] rounded-[24px] border border-[#DED6C9] shadow-[0_16px_36px_-6px_rgba(35,28,20,0.16)] p-6 overflow-hidden"
       >
-        <div className="flex items-center justify-between pb-3 border-b border-[#EAE2D5] mb-4">
-          <h2 className="font-serif-sc text-[17px] font-semibold text-[#2C241E]">
+        <div className="flex items-center justify-between pb-3 border-b border-[#E5DDD1] mb-4">
+          <h2 className="font-serif-sc text-[17px] font-medium text-[#302820]">
             {ledgerToEdit ? '修改账本信息' : '拿出一本空白账本'}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="text-[#8C7F72] hover:text-[#332A22] font-serif-sc text-[13px] cursor-pointer"
+            className="text-[#766C60] hover:text-[#302820] font-serif-sc text-[13.5px] cursor-pointer"
           >
             取消
           </button>
@@ -104,7 +105,7 @@ export const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({
         <div className="space-y-4">
           {/* Name input */}
           <div>
-            <label className="block font-serif-sc text-[12px] text-[#7A6F62] mb-1">
+            <label className="block font-serif-sc text-[12px] text-[#766C60] mb-1">
               账本名称
             </label>
             <input
@@ -112,13 +113,13 @@ export const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="例如：京都游记、我们的家、小猫咪日记"
-              className="w-full font-serif-sc text-[14px] text-[#2C241E] bg-[#F4EFE6] border border-[#D8CEBF] rounded-[4px] px-3 py-2 outline-none"
+              className="w-full font-serif-sc text-[14px] text-[#302820] placeholder:text-[#B5ACA0] bg-[#FAF7F1] border border-[#DED6C9] rounded-[9px] px-3.5 py-2.5 outline-none focus:border-[#B45C42] transition-colors"
             />
           </div>
 
           {/* Subtitle */}
           <div>
-            <label className="block font-serif-sc text-[12px] text-[#7A6F62] mb-1">
+            <label className="block font-serif-sc text-[12px] text-[#766C60] mb-1">
               副标题（可选）
             </label>
             <input
@@ -126,13 +127,13 @@ export const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({
               value={subtitle}
               onChange={(e) => setSubtitle(e.target.value)}
               placeholder="例如：记录细碎而珍贵的时光"
-              className="w-full font-serif-sc text-[13px] text-[#2C241E] bg-[#F4EFE6] border border-[#D8CEBF] rounded-[4px] px-3 py-2 outline-none"
+              className="w-full font-serif-sc text-[13.5px] text-[#302820] placeholder:text-[#B5ACA0] bg-[#FAF7F1] border border-[#DED6C9] rounded-[9px] px-3.5 py-2.5 outline-none focus:border-[#B45C42] transition-colors"
             />
           </div>
 
           {/* Select Cover */}
           <div>
-            <label className="block font-serif-sc text-[12px] text-[#7A6F62] mb-1.5">
+            <label className="block font-serif-sc text-[12px] text-[#766C60] mb-1.5">
               选择封面照片
             </label>
             <div className="grid grid-cols-4 gap-2">
@@ -141,9 +142,9 @@ export const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({
                   key={i}
                   type="button"
                   onClick={() => setSelectedCover(cov.url)}
-                  className={`relative rounded-[3px] overflow-hidden aspect-[3/4] border-2 transition-transform cursor-pointer ${
+                  className={`relative rounded-[4px] overflow-hidden aspect-[3/4] border-2 transition-transform cursor-pointer ${
                     selectedCover === cov.url
-                      ? 'border-[#2C241E] scale-102 shadow-md'
+                      ? 'border-[#B45C42] scale-102 shadow-sm'
                       : 'border-transparent opacity-80 hover:opacity-100'
                   }`}
                 >
@@ -153,9 +154,9 @@ export const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({
             </div>
           </div>
 
-          {/* 08 主题配色预览 (基于封面自动生成) */}
-          <div className="p-3 bg-[#F0EAE0] rounded-[6px] border border-[#DDD3C4]">
-            <span className="font-serif-sc text-[11px] text-[#7A6F62] block mb-2">
+          {/* 08 主题配色预览 */}
+          <div className="p-3 bg-[#FAF7F1] rounded-[9px] border border-[#E5DDD1]">
+            <span className="font-serif-sc text-[11px] text-[#766C60] block mb-2">
               自动衍生出版物色彩世界 (Theme)
             </span>
             <div className="flex items-center gap-3">
@@ -164,44 +165,44 @@ export const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({
                   style={{ backgroundColor: themePreview.primary }}
                   className="w-6 h-6 rounded-full shadow-sm"
                 />
-                <span className="text-[10px] font-serif-sc text-[#7A6F62]">主色</span>
+                <span className="text-[10px] font-serif-sc text-[#766C60]">主色</span>
               </div>
               <div className="flex flex-col items-center gap-1">
                 <div
                   style={{ backgroundColor: themePreview.secondary }}
                   className="w-6 h-6 rounded-full shadow-sm"
                 />
-                <span className="text-[10px] font-serif-sc text-[#7A6F62]">辅助色</span>
+                <span className="text-[10px] font-serif-sc text-[#766C60]">辅助色</span>
               </div>
               <div className="flex flex-col items-center gap-1">
                 <div
                   style={{ backgroundColor: themePreview.paper }}
                   className="w-6 h-6 rounded-full shadow-sm border border-black/10"
                 />
-                <span className="text-[10px] font-serif-sc text-[#7A6F62]">纸张色</span>
+                <span className="text-[10px] font-serif-sc text-[#766C60]">纸张色</span>
               </div>
               <div className="flex flex-col items-center gap-1">
                 <div
                   style={{ backgroundColor: themePreview.ink }}
                   className="w-6 h-6 rounded-full shadow-sm"
                 />
-                <span className="text-[10px] font-serif-sc text-[#7A6F62]">墨水色</span>
+                <span className="text-[10px] font-serif-sc text-[#766C60]">墨水色</span>
               </div>
               <div className="flex flex-col items-center gap-1">
                 <div
                   style={{ backgroundColor: themePreview.accent }}
                   className="w-6 h-6 rounded-full shadow-sm"
                 />
-                <span className="text-[10px] font-serif-sc text-[#7A6F62]">强调色</span>
+                <span className="text-[10px] font-serif-sc text-[#766C60]">强调色</span>
               </div>
             </div>
           </div>
 
-          {/* Submit */}
+          {/* Submit Primary Button */}
           <button
             type="button"
             onClick={handleSave}
-            className="w-full py-2.5 rounded-[4px] bg-[#2C241E] text-white font-serif-sc text-[13.5px] font-medium hover:bg-[#43372C] transition-colors cursor-pointer shadow-sm"
+            className="w-full py-2.5 rounded-[10px] bg-[#B45C42] hover:bg-[#A9513A] active:bg-[#96432E] text-[#FFF9F2] font-serif-sc text-[14px] font-medium transition-colors cursor-pointer"
           >
             {ledgerToEdit ? '保存修改' : '放入书架并开始书写'}
           </button>

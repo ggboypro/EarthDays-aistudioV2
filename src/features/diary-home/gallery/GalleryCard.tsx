@@ -72,7 +72,8 @@ export const GalleryCard: React.FC<GalleryCardProps> = ({
         className="w-full h-full relative"
       >
         {/* Physical Paper Sheet */}
-        <div
+        <motion.div
+          layoutId={`diary-card-${entry.id}`}
           className={`w-full h-full bg-[#FAF7F2] rounded-[5px] border border-[#E3DAC9] ${shadowClass} relative overflow-hidden flex flex-col`}
         >
           {/* Subtle interior highlight border */}
@@ -106,7 +107,7 @@ export const GalleryCard: React.FC<GalleryCardProps> = ({
               />
             </>
           )}
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   );

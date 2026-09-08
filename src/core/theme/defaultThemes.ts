@@ -3,15 +3,15 @@ import { ThemePalette } from '../types/theme';
 export const THEME_MY_DAYS: ThemePalette = {
   id: 'theme_my_days',
   name: '日出与海 · 我的日子',
-  primary: '#537178',
+  primary: '#B45C42',
   secondary: '#7B969C',
-  paper: '#FDFBF7',
-  paperBorder: '#EFE7DB',
-  ink: '#2B2521',
-  inkMuted: '#736B63',
-  accent: '#A6543A',
-  shadowColor: 'rgba(38, 30, 22, 0.12)',
-  canvasBg: '#E8E1D5',
+  paper: '#FBF8F2',
+  paperBorder: '#DED6C9',
+  ink: '#302820',
+  inkMuted: '#766C60',
+  accent: '#B45C42',
+  shadowColor: 'rgba(38, 30, 22, 0.08)',
+  canvasBg: '#F2EEE6',
 };
 
 export const THEME_MOMO: ThemePalette = {
@@ -19,13 +19,13 @@ export const THEME_MOMO: ThemePalette = {
   name: '绒毛与草地 · MOMO',
   primary: '#607860',
   secondary: '#8DA08D',
-  paper: '#FAF8F2',
-  paperBorder: '#EAE6D8',
-  ink: '#272C25',
-  inkMuted: '#677064',
-  accent: '#C47738',
-  shadowColor: 'rgba(30, 36, 28, 0.12)',
-  canvasBg: '#E4DFD3',
+  paper: '#FBF8F2',
+  paperBorder: '#DED6C9',
+  ink: '#302820',
+  inkMuted: '#766C60',
+  accent: '#B45C42',
+  shadowColor: 'rgba(30, 36, 28, 0.08)',
+  canvasBg: '#F2EEE6',
 };
 
 export const THEME_US: ThemePalette = {
@@ -33,13 +33,13 @@ export const THEME_US: ThemePalette = {
   name: '日落时分 · 我们',
   primary: '#855E46',
   secondary: '#A67F68',
-  paper: '#FAF5EE',
-  paperBorder: '#E8DECة',
-  ink: '#30241E',
-  inkMuted: '#79655B',
-  accent: '#9C3A32',
-  shadowColor: 'rgba(40, 28, 22, 0.13)',
-  canvasBg: '#E5DCCE',
+  paper: '#FBF8F2',
+  paperBorder: '#DED6C9',
+  ink: '#302820',
+  inkMuted: '#766C60',
+  accent: '#B45C42',
+  shadowColor: 'rgba(40, 28, 22, 0.08)',
+  canvasBg: '#F2EEE6',
 };
 
 export const THEME_JAPAN: ThemePalette = {

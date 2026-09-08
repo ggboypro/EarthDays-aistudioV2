@@ -48,13 +48,13 @@ function AppContent() {
 
   return (
     <div
-      style={{ backgroundColor: theme.canvasBg }}
-      className="min-h-screen text-[#2D2721] font-sans antialiased relative transition-colors duration-300 select-none sm:select-auto"
+      style={{ backgroundColor: '#F2EEE6', color: '#302820' }}
+      className="min-h-screen font-sans antialiased relative transition-colors duration-300 select-none sm:select-auto"
     >
       {/* Background ambient lighting pattern */}
-      <div className="fixed inset-0 bg-gradient-to-b from-white/20 to-black/5 pointer-events-none" />
+      <div className="fixed inset-0 bg-gradient-to-b from-white/10 to-black/5 pointer-events-none" />
 
-      {/* Main Container - Full viewport responsive workspace without fake phone shell */}
+      {/* Main Container - Full viewport responsive workspace */}
       <div className="relative z-10 w-full min-h-screen flex flex-col">
         {/* Full-screen View Hierarchy */}
         {showWelcome ? (
@@ -95,7 +95,7 @@ function AppContent() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 15 }}
                   transition={{ duration: 0.2 }}
-                  className="fixed inset-0 z-40 bg-[#F7F4EE] overflow-y-auto"
+                  className="fixed inset-0 z-40 bg-[#FBF8F2] overflow-y-auto"
                 >
                   <div className="w-full max-w-3xl mx-auto min-h-screen">
                     <MemoryDetailView
@@ -120,7 +120,7 @@ function AppContent() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 15 }}
                   transition={{ duration: 0.2 }}
-                  className="fixed inset-0 z-50 bg-[#F7F4EE] overflow-y-auto"
+                  className="fixed inset-0 z-50 bg-[#FBF8F2] overflow-y-auto"
                 >
                   <DiaryDetailView
                     entry={detailEntry}

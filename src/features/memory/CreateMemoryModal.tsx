@@ -66,26 +66,27 @@ export const CreateMemoryModal: React.FC<CreateMemoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-60 bg-[rgba(35,29,24,0.30)] backdrop-blur-xs flex items-center justify-center p-4">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-md bg-[#FAF7F2] rounded-[8px] border border-[#DDD3C4] shadow-2xl p-6 overflow-y-auto max-h-[90vh]"
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 12 }}
+        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md bg-[#FBF8F2] rounded-[24px] border border-[#DED6C9] shadow-[0_16px_36px_-6px_rgba(35,28,20,0.16)] p-6 overflow-y-auto max-h-[90vh]"
       >
-        <div className="flex items-center justify-between pb-3 border-b border-[#EAE2D5] mb-4">
+        <div className="flex items-center justify-between pb-3 border-b border-[#E5DDD1] mb-4">
           <div>
-            <h3 className="font-serif-sc text-[16.5px] font-bold text-[#2C241E]">
+            <h3 className="font-serif-sc text-[17px] font-medium text-[#302820]">
               创建一段主题记忆
             </h3>
-            <p className="font-serif-sc text-[11px] text-[#7A6F62]">
+            <p className="font-serif-sc text-[11.5px] text-[#766C60]">
               挑选相关日记组合为记忆片段（如旅途、成长、某一个夏天）
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-7 h-7 rounded-full bg-[#EAE2D5] text-[#554A3E] flex items-center justify-center text-[12px] font-serif-sc cursor-pointer"
+            className="w-7 h-7 rounded-full bg-[#FAF7F1] border border-[#DED6C9] text-[#766C60] hover:text-[#302820] flex items-center justify-center text-[12px] font-serif-sc cursor-pointer"
           >
             ✕
           </button>
@@ -94,32 +95,32 @@ export const CreateMemoryModal: React.FC<CreateMemoryModalProps> = ({
         <div className="space-y-4 font-serif-sc">
           {/* Title */}
           <div>
-            <label className="block text-[12px] text-[#7A6F62] mb-1">记忆主题名称</label>
+            <label className="block text-[12px] text-[#766C60] mb-1">记忆主题名称</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="例如：2026 日本旅行、MOMO成长札记、夏天的风"
-              className="w-full text-[13.5px] text-[#2C241E] bg-[#F4EFE6] border border-[#D8CEBF] rounded-[4px] px-3 py-2 outline-none"
+              className="w-full text-[13.5px] text-[#302820] placeholder:text-[#B5ACA0] bg-[#FAF7F1] border border-[#DED6C9] rounded-[9px] px-3.5 py-2.5 outline-none focus:border-[#B45C42] transition-colors"
             />
           </div>
 
           {/* Subtitle */}
           <div>
-            <label className="block text-[12px] text-[#7A6F62] mb-1">简短引言（可选）</label>
+            <label className="block text-[12px] text-[#766C60] mb-1">简短引言（可选）</label>
             <input
               type="text"
               value={subtitle}
               onChange={(e) => setSubtitle(e.target.value)}
               placeholder="例如：把那些闪闪发光的瞬间串联起来"
-              className="w-full text-[13px] text-[#2C241E] bg-[#F4EFE6] border border-[#D8CEBF] rounded-[4px] px-3 py-2 outline-none"
+              className="w-full text-[13px] text-[#302820] placeholder:text-[#B5ACA0] bg-[#FAF7F1] border border-[#DED6C9] rounded-[9px] px-3.5 py-2.5 outline-none focus:border-[#B45C42] transition-colors"
             />
           </div>
 
           {/* Diary Selection */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[12px] text-[#7A6F62]">
+              <label className="text-[12px] text-[#766C60]">
                 勾选收录进此记忆的日记 ({selectedDiaryIds.length}/{allEntries.length})
               </label>
               <button
@@ -129,7 +130,7 @@ export const CreateMemoryModal: React.FC<CreateMemoryModalProps> = ({
                     selectedDiaryIds.length === allEntries.length ? [] : allEntries.map((e) => e.id)
                   )
                 }
-                className="text-[11.5px] text-[#A64434] cursor-pointer"
+                className="text-[12px] text-[#B45C42] hover:text-[#A9513A] cursor-pointer"
               >
                 {selectedDiaryIds.length === allEntries.length ? '取消全选' : '全部选择'}
               </button>
@@ -142,20 +143,20 @@ export const CreateMemoryModal: React.FC<CreateMemoryModalProps> = ({
                   <div
                     key={entry.id}
                     onClick={() => toggleSelectDiary(entry.id)}
-                    className={`p-2.5 rounded-[4px] border cursor-pointer flex items-center justify-between transition-colors ${
+                    className={`p-2.5 rounded-[9px] border cursor-pointer flex items-center justify-between transition-colors ${
                       isSelected
-                        ? 'bg-[#EFE8DC] border-[#B7A998]'
-                        : 'bg-[#F9F6F0] border-[#E8DFC9] opacity-75'
+                        ? 'bg-[#EEE7DC] border-[#DED6C9]'
+                        : 'bg-[#FAF7F1] border-[#E5DDD1] opacity-80'
                     }`}
                   >
                     <div className="min-w-0 pr-2">
                       <div className="flex items-baseline gap-2">
-                        <span className="font-editorial text-[12px] font-bold text-[#2A221B]">
+                        <span className="font-editorial text-[12px] font-semibold text-[#302820]">
                           {entry.diaryDate}
                         </span>
-                        <span className="text-[11px] text-[#867B6E]">{entry.dayOfWeek}</span>
+                        <span className="text-[11px] text-[#766C60]">{entry.dayOfWeek}</span>
                       </div>
-                      <div className="text-[12px] text-[#42382D] truncate">
+                      <div className="text-[12px] text-[#302820] truncate">
                         {entry.title || entry.body}
                       </div>
                     </div>
@@ -163,7 +164,7 @@ export const CreateMemoryModal: React.FC<CreateMemoryModalProps> = ({
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => {}}
-                      className="accent-[#A64434] shrink-0"
+                      className="accent-[#B45C42] shrink-0"
                     />
                   </div>
                 );
@@ -175,7 +176,7 @@ export const CreateMemoryModal: React.FC<CreateMemoryModalProps> = ({
           <button
             type="button"
             onClick={handleCreate}
-            className="w-full py-2.5 rounded-[4px] bg-[#2C241E] text-white font-medium text-[13.5px] hover:bg-[#43372C] transition-colors cursor-pointer shadow-sm mt-4"
+            className="w-full py-2.5 rounded-[10px] bg-[#B45C42] hover:bg-[#A9513A] active:bg-[#96432E] text-[#FFF9F2] font-medium text-[14px] transition-colors cursor-pointer shadow-sm mt-4"
           >
             收录为一段记忆
           </button>

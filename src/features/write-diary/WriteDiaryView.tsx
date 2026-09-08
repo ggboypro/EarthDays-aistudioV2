@@ -1,17 +1,15 @@
 // src/features/write-diary/WriteDiaryView.tsx
-// EarthDays Write & Publish Flow: Continuous Paper Card Flight & Spatial Drop Architecture
+// EarthDays Write & Publish Flow: Replicated 1:1 from real paper design mockup
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Ledger } from '../../core/types/ledger';
 import { DiaryEntry, MoodType } from '../../core/types/diary';
 import { PhotoAsset } from '../../core/types/photo';
 import { diaryRepo } from '../../core/storage/diaryRepository';
-import { PhotoPrint } from '../../design-system/photo/PhotoPrint';
 import { MOOD_PRESETS, MoodStamp } from '../../design-system/elements/MoodStamp';
-import { LocationMarkIcon, WritePenIcon } from '../../design-system/icons/EarthDiaryIcons';
 import { useTheme } from '../../core/theme/ThemeContext';
-import { motion, AnimatePresence } from 'motion/react';
-import { Check, Sparkles } from 'lucide-react';
+import { motion } from 'motion/react';
+import { MapPin, Sun, ChevronDown, ChevronRight, X } from 'lucide-react';
 
 interface WriteDiaryViewProps {
   initialLedger?: Ledger;
@@ -20,6 +18,77 @@ interface WriteDiaryViewProps {
   onSaved: (entry: DiaryEntry) => void;
 }
 
+// Botanical leaf branch & script watermark decoration at bottom right
+const BotanicalWatermark: React.FC = () => (
+  <div className="absolute right-5 bottom-3 pointer-events-none opacity-85 select-none flex items-end gap-1.5 z-0">
+    <div className="text-right pb-1">
+      <div
+        className="text-[13px] leading-tight text-[#A39686] font-serif italic"
+        style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
+      >
+        Good days
+      </div>
+      <div
+        className="text-[13px] leading-tight text-[#A39686] font-serif italic"
+        style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
+      >
+        make a good life.
+      </div>
+    </div>
+    {/* Delicate Leaf Branch SVG */}
+    <svg
+      width="38"
+      height="62"
+      viewBox="0 0 38 62"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="text-[#8F8170]"
+    >
+      <path
+        d="M10 58C14 44 24 26 34 3"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M34 3C28 7 22 13 24 19C26 25 34 19 34 3Z"
+        fill="currentColor"
+        fillOpacity="0.25"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
+      <path
+        d="M24 22C16 23 12 27 15 33C18 39 25 31 24 22Z"
+        fill="currentColor"
+        fillOpacity="0.25"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
+      <path
+        d="M18 37C11 39 8 44 11 49C14 54 20 47 18 37Z"
+        fill="currentColor"
+        fillOpacity="0.25"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
+      <path
+        d="M29 14C34 16 36 21 33 25C30 29 28 22 29 14Z"
+        fill="currentColor"
+        fillOpacity="0.25"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
+      <path
+        d="M25 29C30 33 32 38 29 41C26 44 24 37 25 29Z"
+        fill="currentColor"
+        fillOpacity="0.25"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
+    </svg>
+  </div>
+);
+
 export const WriteDiaryView: React.FC<WriteDiaryViewProps> = ({
   initialLedger,
   editingEntry,
@@ -27,83 +96,123 @@ export const WriteDiaryView: React.FC<WriteDiaryViewProps> = ({
   onSaved,
 }) => {
   const { theme } = useTheme();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const dateInputRef = useRef<HTMLInputElement | null>(null);
+
   const ledgers = diaryRepo.getLedgers();
   const currentLedger = initialLedger || diaryRepo.getCurrentLedger();
 
   const today = new Date();
-  const dateStr = editingEntry ? editingEntry.diaryDate : today.toISOString().split('T')[0];
+  const dateStr = editingEntry ? editingEntry.diaryDate : '2026-09-08';
+
+  const calculateDayOfWeek = (dStr: string) => {
+    const parts = dStr.split('-');
+    if (parts.length === 3) {
+      const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      if (!isNaN(d.getTime())) {
+        return ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][d.getDay()];
+      }
+    }
+    return '周二';
+  };
+
   const weekdayStr = editingEntry
     ? editingEntry.dayOfWeek
-    : ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][today.getDay()];
+    : calculateDayOfWeek(dateStr);
 
   const [selectedLedgerId, setSelectedLedgerId] = useState<string>(
     editingEntry ? editingEntry.ledgerId : currentLedger.id
   );
   const [diaryDate, setDiaryDate] = useState<string>(dateStr);
   const [dayOfWeek, setDayOfWeek] = useState<string>(weekdayStr);
-  const [title, setTitle] = useState<string>(editingEntry?.title || '');
-  const [body, setBody] = useState<string>(editingEntry?.body || '');
-  const [photos, setPhotos] = useState<PhotoAsset[]>(editingEntry?.photos || []);
+
+  // Default sample content matching the picture if new diary, or loaded editing entry
+  const defaultTitle = editingEntry?.title ?? '秋天的公园';
+  const defaultBody = editingEntry?.body ?? 
+    `今天的阳光很好，带着一点点秋天的凉意。\n我在公园里走了很久，看到树叶开始变黄，风吹过来的时候，有一种很安静的感觉。\n\n生活好像总是在这样的瞬间，\n突然变得柔软起来。`;
+
+  // Pre-load default sample photos matching mockup if available
+  const defaultSamplePhotos: PhotoAsset[] = [
+    {
+      id: 'mock_1',
+      url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80',
+      aspectRatio: 1,
+    },
+    {
+      id: 'mock_2',
+      url: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=400&q=80',
+      aspectRatio: 1,
+    },
+    {
+      id: 'mock_3',
+      url: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=400&q=80',
+      aspectRatio: 1,
+    },
+    {
+      id: 'mock_4',
+      url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=400&q=80',
+      aspectRatio: 1,
+    },
+  ];
+
+  const initialPhotos = editingEntry ? editingEntry.photos : defaultSamplePhotos;
+
+  const [title, setTitle] = useState<string>(defaultTitle);
+  const [body, setBody] = useState<string>(defaultBody);
+  const [photos, setPhotos] = useState<PhotoAsset[]>(initialPhotos);
   const [locationName, setLocationName] = useState<string>(
     editingEntry?.location?.name || '上海 · 公园'
   );
+  const [isEditingLocation, setIsEditingLocation] = useState<boolean>(false);
   const [selectedMood, setSelectedMood] = useState<MoodType>(
     editingEntry?.mood?.type || 'sunny'
   );
 
-  // UI Modal states
+  // Dropdown pickers
   const [showMoodPicker, setShowMoodPicker] = useState(false);
   const [showLedgerPicker, setShowLedgerPicker] = useState(false);
-  const [aiRefining, setAiRefining] = useState(false);
-  const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
 
-  // Flight & Publishing animation state
+  // Publishing status
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
 
-  // Quick sample photo presets for demonstration / simulated picker
-  const SAMPLE_PHOTOS = [
-    'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=700&auto=format&fit=crop&q=80', // cherry blossom
-    'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=700&auto=format&fit=crop&q=80', // cute cat
-    'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=700&auto=format&fit=crop&q=80', // Fuji
-    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=700&auto=format&fit=crop&q=80', // Sunset
-    'https://images.unsplash.com/photo-1552053831-71594a27632d?w=700&auto=format&fit=crop&q=80', // Dog
-  ];
-
-  const handleAddSamplePhoto = (url: string) => {
-    const newPhoto: PhotoAsset = {
-      id: `photo_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
-      url,
-      aspectRatio: 1,
-      rotationDeg: Math.random() * 2.4 - 1.2,
-    };
-    setPhotos([...photos, newPhoto]);
-  };
-
-  const handleRemovePhoto = (id: string) => {
-    setPhotos(photos.filter((p) => p.id !== id));
-  };
-
-  // Red Pen AI Refine simulation
-  const handleAiRefine = () => {
-    if (!body.trim()) return;
-    setAiRefining(true);
-    setTimeout(() => {
-      const refined = `${body.trim()}\n\n微风拂过发梢，阳光温和地洒落在石阶上。把这一刻的温暖仔细收拢在字里行间，平凡的日子，也是独一无二的故事。`;
-      setAiSuggestion(refined);
-      setAiRefining(false);
-    }, 800);
-  };
-
-  const handleApplyAiSuggestion = () => {
-    if (aiSuggestion) {
-      setBody(aiSuggestion);
-      setAiSuggestion(null);
+  // Date change handler
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = e.target.value;
+    if (newDate) {
+      setDiaryDate(newDate);
+      setDayOfWeek(calculateDayOfWeek(newDate));
     }
   };
 
-  // Publish with continuous floating card choreography
+  // Upload local images
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files as FileList).forEach((file: File) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          const newPhoto: PhotoAsset = {
+            id: `photo_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+            url: event.target.result as string,
+            aspectRatio: 1,
+          };
+          setPhotos((prev) => [...prev, newPhoto]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  };
+
+  const handleRemovePhoto = (id: string) => {
+    setPhotos((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  // Publish entry
   const handlePublish = () => {
-    if (!body.trim() && photos.length === 0) {
+    if (!body.trim() && photos.length === 0 && !title.trim()) {
       alert('请写下一些字句或放上一张照片吧');
       return;
     }
@@ -146,132 +255,118 @@ export const WriteDiaryView: React.FC<WriteDiaryViewProps> = ({
       diaryRepo.addEntry(savedEntry);
     }
 
-    // Trigger physical card flight animation
     setIsPublishing(true);
 
-    // After card ascends smoothly towards the top zone, close modal and notify parent to slot it in
     setTimeout(() => {
       onSaved(savedEntry);
       onClose();
-    }, 420);
+    }, 400);
   };
 
   const activeLedgerObj = ledgers.find((l) => l.id === selectedLedgerId) || currentLedger;
+  const activeMoodObj = MOOD_PRESETS.find((m) => m.type === selectedMood) || MOOD_PRESETS[0];
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: isPublishing ? 0 : 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: isPublishing ? 0.38 : 0.22, ease: 'easeOut' }}
-      className="fixed inset-0 z-50 bg-[#2C2621]/45 backdrop-blur-xs flex flex-col justify-end sm:justify-center p-0 sm:p-4 overflow-hidden"
+      transition={{ duration: isPublishing ? 0.35 : 0.2, ease: 'easeOut' }}
+      className="fixed inset-0 z-50 bg-[rgba(35,29,24,0.30)] backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto select-none sm:select-auto"
     >
-      {/* ========================================================================= */}
-      {/* 1. WRITING DESK MODAL / FLYING PAPER SHEET */}
-      {/* ========================================================================= */}
+      {/* Hidden File Input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handlePhotoUpload}
+        className="hidden"
+      />
+
+      {/* Hidden Native Date Input */}
+      <input
+        ref={dateInputRef}
+        type="date"
+        value={diaryDate}
+        onChange={handleDateChange}
+        className="hidden"
+      />
+
+      {/* Real Paper Writing Sheet Card */}
       <motion.div
-        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        initial={{ opacity: 0, scale: 0.96, y: 20 }}
         animate={{
           opacity: 1,
-          y: isPublishing ? -320 : 0,
           scale: isPublishing ? 0.88 : 1,
-          rotate: isPublishing ? -2.2 : 0,
-          boxShadow: isPublishing
-            ? '0 36px 70px -12px rgba(28, 18, 10, 0.48), 0 12px 24px -4px rgba(28, 18, 10, 0.22)'
-            : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          y: isPublishing ? -200 : 0,
         }}
-        exit={{ opacity: 0, y: 40 }}
+        exit={{ opacity: 0, scale: 0.96, y: 20 }}
         transition={{
-          duration: isPublishing ? 0.42 : 0.28,
-          ease: isPublishing ? [0.22, 1, 0.36, 1] : 'easeOut',
+          duration: isPublishing ? 0.4 : 0.25,
+          ease: isPublishing ? [0.16, 1, 0.3, 1] : 'easeOut',
         }}
-        className="relative w-full max-w-lg mx-auto bg-[#FDFBF7] rounded-t-[16px] sm:rounded-[8px] border border-[#E0D7C8] flex flex-col max-h-[92vh] overflow-hidden select-none"
+        className="relative w-full max-w-[460px] bg-[#FBF8F2] rounded-[24px] border border-[#DED6C9] shadow-[0_16px_36px_-6px_rgba(35,28,20,0.16)] overflow-hidden flex flex-col my-auto max-h-[92vh]"
       >
-        {/* Floating Flight Aura during publish */}
-        {isPublishing && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-gradient-to-tr from-[#FAF7F2] via-white/80 to-[#F5ECE0] z-20 pointer-events-none flex flex-col items-center justify-center p-6 text-center border-2 border-[#B84337]/30 rounded-[8px]"
-          >
-            <div className="w-10 h-10 rounded-full bg-[#A34335]/10 text-[#A34335] flex items-center justify-center mb-2 animate-bounce">
-              <Sparkles size={20} />
-            </div>
-            <span className="font-serif-sc text-sm font-semibold text-[#2C241E] tracking-wider">
-              正在收拢字句 · 收入《{activeLedgerObj.name}》
-            </span>
-            <span className="font-serif-sc text-xs text-[#7A6D5E] mt-1">
-              卡片正升入时光画廊...
-            </span>
-          </motion.div>
-        )}
-
-        {/* 顶部导航: [取消]  写日记  [发布] */}
-        <header className="flex items-center justify-between px-5 py-3.5 border-b border-[#EDE6DA] bg-[#FAF7F2]">
+        {/* 1. Header: 取消  写日记  发布 */}
+        <header className="px-6 py-4 flex items-center justify-between border-b border-[#E5DDD1] shrink-0 bg-[#FBF8F2] z-10">
           <button
             type="button"
             onClick={onClose}
             disabled={isPublishing}
-            className="font-serif-sc text-[14px] text-[#7A7063] hover:text-[#332A22] cursor-pointer disabled:opacity-30"
+            className="font-serif-sc text-[14px] text-[#766C60] hover:text-[#302820] cursor-pointer disabled:opacity-30 transition-colors"
           >
             取消
           </button>
 
-          <h1 className="font-serif-sc text-[16px] font-semibold text-[#2C241E] tracking-wider">
-            {editingEntry ? '编辑日记' : '写日记'}
+          <h1 className="font-serif-sc text-[17px] font-medium text-[#302820] tracking-wide">
+            写日记
           </h1>
 
           <button
             type="button"
             onClick={handlePublish}
             disabled={isPublishing}
-            style={{ backgroundColor: theme.accent }}
-            className="px-3.5 py-1.5 rounded-[4px] font-serif-sc text-[13px] font-medium text-white shadow-sm cursor-pointer hover:opacity-90 active:scale-98 transition-all disabled:opacity-50 flex items-center gap-1"
+            className="bg-[#B45C42] hover:bg-[#A9513A] active:bg-[#96432E] text-[#FFF9F2] font-serif-sc text-[14px] px-4 py-1.5 rounded-[10px] font-medium transition-all disabled:opacity-50 cursor-pointer"
           >
-            {isPublishing ? (
-              <>
-                <Check size={13} strokeWidth={2.5} />
-                <span>发布中...</span>
-              </>
-            ) : (
-              <span>发布</span>
-            )}
+            {isPublishing ? '发布中...' : '发布'}
           </button>
         </header>
 
-        {/* 真实信笺书写区域 */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 paper-grain">
-          {/* 1. 日期与心情标头 */}
-          <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#EAE2D5]">
-            <div className="flex items-center gap-2">
-              <span className="font-editorial text-[14px] text-[#756A5D]">
-                🕒 {diaryDate}
-              </span>
-              <span className="font-serif-sc text-[12px] text-[#918679]">
-                {dayOfWeek}
-              </span>
-            </div>
+        {/* Scrollable Content Paper Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 relative z-10">
+          {/* 2. Date & Mood Row */}
+          <div className="flex items-center justify-between">
+            {/* Date Picker Trigger */}
+            <button
+              type="button"
+              onClick={() =>
+                dateInputRef.current?.showPicker
+                  ? dateInputRef.current.showPicker()
+                  : dateInputRef.current?.click()
+              }
+              className="flex items-center gap-1 font-serif-sc text-[13.5px] text-[#766C60] hover:text-[#302820] cursor-pointer transition-colors"
+            >
+              <span>{diaryDate}</span>
+              <span>{dayOfWeek}</span>
+              <ChevronDown size={13} className="text-[#9A9084]" />
+            </button>
 
-            {/* 心情切换小印章 */}
+            {/* Mood Selector Dropdown */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setShowMoodPicker(!showMoodPicker)}
-                className="flex items-center gap-1.5 px-2 py-1 bg-[#FAF7F2] border border-[#E0D7C9] rounded-[4px] cursor-pointer"
+                className="flex items-center gap-1 font-serif-sc text-[13.5px] text-[#766C60] hover:text-[#302820] cursor-pointer transition-colors"
               >
-                <MoodStamp
-                  mood={{
-                    type: selectedMood,
-                    label:
-                      MOOD_PRESETS.find((m) => m.type === selectedMood)?.label || '',
-                  }}
-                />
-                <span className="text-[10px] text-[#9A8F82]">▾</span>
+                <Sun size={15} className="text-[#B45C42] fill-[#B45C42]/15" />
+                <span>{activeMoodObj.label}</span>
+                <ChevronDown size={13} className="text-[#9A9084]" />
               </button>
 
-              {/* Mood picker dropdown */}
+              {/* Mood Dropdown */}
               {showMoodPicker && (
-                <div className="absolute right-0 top-full mt-1.5 z-30 p-2 bg-[#FAF7F2] border border-[#DDD3C4] rounded-[6px] shadow-lg flex gap-2">
+                <div className="absolute right-0 top-full mt-1 z-40 p-1.5 bg-[#FAF7F1] border border-[#DED6C9] rounded-[9px] shadow-lg flex gap-1.5">
                   {MOOD_PRESETS.map((m) => (
                     <button
                       key={m.type}
@@ -280,13 +375,13 @@ export const WriteDiaryView: React.FC<WriteDiaryViewProps> = ({
                         setSelectedMood(m.type);
                         setShowMoodPicker(false);
                       }}
-                      className={`p-1.5 rounded-[4px] hover:bg-[#EAE2D5] cursor-pointer flex flex-col items-center gap-0.5 ${
+                      className={`px-2.5 py-1 rounded-[6px] hover:bg-[#EEE7DC] cursor-pointer flex items-center gap-1 font-serif-sc text-[12.5px] transition-colors ${
                         selectedMood === m.type
-                          ? 'bg-[#E5DDCE] ring-1 ring-[#9A8A78]'
-                          : ''
+                          ? 'bg-[#EEE7DC] text-[#302820] font-medium'
+                          : 'text-[#766C60]'
                       }`}
                     >
-                      <MoodStamp mood={m} />
+                      <MoodStamp mood={{ type: m.type, label: m.label }} size={14} />
                     </button>
                   ))}
                 </div>
@@ -294,199 +389,182 @@ export const WriteDiaryView: React.FC<WriteDiaryViewProps> = ({
             </div>
           </div>
 
-          {/* 2. 标题输入 */}
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="记下一个标题（可选）"
-            className="w-full font-serif-sc text-[17px] sm:text-[19px] font-semibold text-[#29221C] placeholder:text-[#AAA094] bg-transparent border-none outline-none pb-2 mb-2 tracking-tight"
-          />
+          {/* 3. Title Input (Written directly on Paper) */}
+          <div className="pt-1">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="标题"
+              className="w-full font-serif-sc text-[21px] font-semibold text-[#302820] placeholder:text-[#B5ACA0] bg-transparent border-none outline-none tracking-tight py-0.5"
+            />
+          </div>
 
-          {/* 3. 正文输入 */}
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="写下今天的日子、心绪，或者发生的微小瞬间..."
-            rows={7}
-            className="w-full font-serif-sc text-[15px] sm:text-[16px] text-[#3D352D] placeholder:text-[#A69C8F] bg-transparent border-none outline-none resize-none leading-[1.75] tracking-normal mb-4"
-          />
+          {/* 4. Body Text Area (Written directly on Paper) */}
+          <div>
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="写下今天的日子、心绪，或者发生的微小瞬间……"
+              rows={7}
+              className="w-full font-serif-sc text-[15px] text-[#302820] placeholder:text-[#B5ACA0] bg-transparent border-none outline-none resize-none leading-[1.85] tracking-normal min-h-[160px]"
+            />
+          </div>
 
-          {/* 4. 冲印照片展示与添加栏 */}
-          <div className="mb-4">
-            <div className="flex flex-wrap items-center gap-3">
-              {photos.map((photo) => (
-                <div key={photo.id} className="relative group">
-                  <PhotoPrint photo={photo} size="md" />
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePhoto(photo.id)}
-                    className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#3B2F2F] text-white rounded-full text-[11px] flex items-center justify-center shadow-md cursor-pointer hover:bg-red-700"
-                    title="移除照片"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-
-              {/* 添加照片槽位 */}
-              <div className="w-24 h-24 sm:w-28 sm:h-28 border-2 border-dashed border-[#D5CBBF] rounded-[3px] bg-[#FAF7F2]/60 hover:bg-[#FAF7F2] flex flex-col items-center justify-center gap-1 text-[#8B7F72] hover:text-[#3B3026] cursor-pointer transition-all">
-                <span className="text-[20px] font-light leading-none">+</span>
-                <span className="font-serif-sc text-[11px]">放一张照片</span>
-              </div>
-            </div>
-
-            {/* Quick sample photo selector */}
-            <div className="mt-2.5 flex items-center gap-2 overflow-x-auto py-1">
-              <span className="font-serif-sc text-[11px] text-[#9A8F82] shrink-0">
-                选择样本相片:
-              </span>
-              {SAMPLE_PHOTOS.map((url, i) => (
+          {/* 5. Photos Row */}
+          <div className="pt-1 flex items-center gap-2.5 overflow-x-auto pb-1">
+            {photos.map((photo) => (
+              <div
+                key={photo.id}
+                className="relative shrink-0 w-[72px] h-[72px] rounded-[4px] overflow-hidden bg-white p-[3px] border border-[#E4DDD2] shadow-sm"
+              >
+                <img
+                  src={photo.url}
+                  alt=""
+                  className="w-full h-full object-cover rounded-[2px]"
+                  referrerPolicy="no-referrer"
+                />
                 <button
-                  key={i}
                   type="button"
-                  onClick={() => handleAddSamplePhoto(url)}
-                  className="w-8 h-8 rounded-[2px] overflow-hidden border border-[#D5CBBF] hover:scale-105 transition-transform shrink-0"
+                  onClick={() => handleRemovePhoto(photo.id)}
+                  className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#302820]/70 text-[#FBF8F2] flex items-center justify-center text-[10px] cursor-pointer hover:bg-[#302820] transition-colors"
+                  title="删除照片"
                 >
+                  <X size={10} />
+                </button>
+              </div>
+            ))}
+
+            {/* Add Photo Dashed Box */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="shrink-0 w-[72px] h-[72px] rounded-[8px] border border-dashed border-[#DED6C9] bg-[#FAF7F1] hover:bg-[#EEE7DC] flex flex-col items-center justify-center cursor-pointer transition-colors"
+            >
+              <span className="text-[17px] text-[#766C60] font-light leading-none mb-0.5">
+                ＋
+              </span>
+              <span className="font-serif-sc text-[11px] text-[#766C60]">
+                添加照片
+              </span>
+            </button>
+          </div>
+
+          {/* 6. Location Row */}
+          <div className="pt-2 border-t border-[#E5DDD1]">
+            <div className="flex items-center justify-between py-1">
+              <div className="flex items-center gap-1.5">
+                <MapPin size={15} className="text-[#766C60]" />
+                {isEditingLocation ? (
+                  <input
+                    type="text"
+                    value={locationName}
+                    onChange={(e) => setLocationName(e.target.value)}
+                    onBlur={() => {
+                      if (!locationName.trim()) setIsEditingLocation(false);
+                    }}
+                    autoFocus
+                    placeholder="例如: 上海 · 公园"
+                    className="font-serif-sc text-[13.5px] text-[#302820] bg-transparent border-b border-dashed border-[#DED6C9] outline-none px-1 py-0.5 w-44"
+                  />
+                ) : (
+                  <span
+                    onClick={() => setIsEditingLocation(true)}
+                    className="font-serif-sc text-[13.5px] text-[#302820] cursor-pointer"
+                  >
+                    {locationName || '添加位置'}
+                  </span>
+                )}
+              </div>
+
+              {locationName.trim() && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocationName('');
+                    setIsEditingLocation(false);
+                  }}
+                  className="w-4 h-4 rounded-full bg-[#E5DDD1] text-[#766C60] flex items-center justify-center cursor-pointer hover:bg-[#DED6C9] transition-colors"
+                  title="清除位置"
+                >
+                  <X size={10} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* 7. Ledger Selection Row */}
+          <div className="pt-2 border-t border-[#E5DDD1] relative pb-8">
+            <div className="flex items-center justify-between py-1">
+              <div className="flex items-center gap-2">
+                {activeLedgerObj.coverImage ? (
                   <img
-                    src={url}
-                    alt="sample"
-                    className="w-full h-full object-cover"
+                    src={activeLedgerObj.coverImage}
+                    alt=""
+                    className="w-7 h-7 rounded-[4px] object-cover border border-[#DED6C9]"
                     referrerPolicy="no-referrer"
                   />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 5. 红笔小批注 AI 润色 */}
-          <div className="mb-4 pt-2 border-t border-[#EDE6DA]">
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                onClick={handleAiRefine}
-                disabled={aiRefining || !body.trim()}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] bg-[#FAF2EF] border border-[#ECCDC6] text-[#A64434] font-serif-sc text-[12px] hover:bg-[#FBEAE6] transition-colors cursor-pointer disabled:opacity-50"
-              >
-                <WritePenIcon size={14} color="#A64434" />
-                <span>{aiRefining ? '正在轻声整理...' : '✍️ 帮我润色'}</span>
-              </button>
-
-              <span className="font-serif-sc text-[11px] text-[#A69C90]">
-                像一支红笔的温柔批注
-              </span>
-            </div>
-
-            {/* AI Suggestion preview */}
-            <AnimatePresence>
-              {aiSuggestion && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mt-2.5 p-3 rounded-[4px] bg-[#FFF9F6] border border-[#E9C3BC] text-[#3D302A]"
-                >
-                  <div className="font-serif-sc text-[11px] text-[#A64434] font-medium mb-1 flex items-center justify-between">
-                    <span>润色建议预览</span>
-                    <button
-                      type="button"
-                      onClick={() => setAiSuggestion(null)}
-                      className="text-[11px] text-[#9C8F85] hover:text-black cursor-pointer"
-                    >
-                      关闭
-                    </button>
+                ) : (
+                  <div className="w-7 h-7 rounded-[4px] bg-[#FAF7F1] border border-[#DED6C9] flex items-center justify-center text-[12px]">
+                    🐕
                   </div>
-                  <p className="font-serif-sc text-[13.5px] text-[#4A3E38] leading-[1.65] whitespace-pre-line mb-2">
-                    {aiSuggestion}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleApplyAiSuggestion}
-                    className="px-2.5 py-1 bg-[#A64434] text-white rounded-[3px] font-serif-sc text-[11.5px] hover:opacity-90 cursor-pointer"
-                  >
-                    写入正文
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* 6. 页脚元数据: 手写地点 & 放入账本 */}
-          <div className="pt-3 border-t border-[#EAE2D5] space-y-2.5">
-            {/* Location selector */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <LocationMarkIcon size={14} color="#85786B" />
-                <input
-                  type="text"
-                  value={locationName}
-                  onChange={(e) => setLocationName(e.target.value)}
-                  placeholder="写下手写地点 (例如: 上海 · 公园)"
-                  className="font-serif-sc text-[12.5px] text-[#4A4035] bg-transparent border-b border-dashed border-[#C5B9AB] outline-none px-1 py-0.5 w-44"
-                />
+                )}
+                <div className="flex items-center gap-1 font-serif-sc text-[13.5px] text-[#302820]">
+                  <span className="text-[#766C60]">放入账本：</span>
+                  <span className="font-medium">{activeLedgerObj.name}</span>
+                </div>
               </div>
-            </div>
 
-            {/* Target Ledger Selector */}
-            <div className="relative">
               <button
                 type="button"
                 onClick={() => setShowLedgerPicker(!showLedgerPicker)}
-                className="w-full flex items-center justify-between p-2 rounded-[4px] bg-[#FAF7F2] border border-[#E2D8CA] hover:bg-[#F3EDE3] transition-colors cursor-pointer"
+                className="flex items-center gap-0.5 font-serif-sc text-[13px] text-[#766C60] hover:text-[#302820] cursor-pointer"
               >
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-5 rounded-[1px] overflow-hidden border border-black/10 shrink-0">
-                    <img
-                      src={activeLedgerObj.coverImage}
-                      alt=""
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                  <span className="font-serif-sc text-[12px] text-[#867B6E]">放入账本:</span>
-                  <span className="font-serif-sc text-[13px] font-medium text-[#2C241E]">
-                    {activeLedgerObj.name}
-                  </span>
-                </div>
-                <span className="text-[#9A8F82] text-[12px]">更换 ▾</span>
+                <span>更换</span>
+                <ChevronRight size={13} />
               </button>
+            </div>
 
-              {/* Ledger Dropdown list */}
-              {showLedgerPicker && (
-                <div className="absolute left-0 right-0 bottom-full mb-1 z-30 bg-[#FAF7F2] border border-[#DDD3C4] rounded-[6px] shadow-xl p-1.5 space-y-1">
-                  {ledgers.map((l) => (
-                    <button
-                      key={l.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedLedgerId(l.id);
-                        setShowLedgerPicker(false);
-                      }}
-                      className={`w-full flex items-center justify-between p-2 rounded-[4px] text-left hover:bg-[#EAE2D5] cursor-pointer ${
-                        selectedLedgerId === l.id ? 'bg-[#E6DDCD] font-medium' : ''
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
+            {/* Ledger Picker Dropdown */}
+            {showLedgerPicker && (
+              <div className="absolute left-0 right-0 bottom-full mb-1 z-40 bg-[#FAF7F1] border border-[#DED6C9] rounded-[9px] shadow-lg p-1.5 space-y-1 max-h-48 overflow-y-auto">
+                {ledgers.map((l) => (
+                  <button
+                    key={l.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedLedgerId(l.id);
+                      setShowLedgerPicker(false);
+                    }}
+                    className={`w-full flex items-center justify-between p-2 rounded-[6px] text-left hover:bg-[#EEE7DC] cursor-pointer transition-colors ${
+                      selectedLedgerId === l.id ? 'bg-[#EEE7DC] font-medium' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {l.coverImage && (
                         <img
                           src={l.coverImage}
                           alt=""
-                          className="w-5 h-6 object-cover rounded-[1px]"
+                          className="w-5 h-5 object-cover rounded-[3px]"
                           referrerPolicy="no-referrer"
                         />
-                        <span className="font-serif-sc text-[13px] text-[#2C241E]">
-                          {l.name}
-                        </span>
-                      </div>
-                      <span className="font-serif-sc text-[11px] text-[#8C8072]">
-                        {l.entryCount}篇
+                      )}
+                      <span className="font-serif-sc text-[13px] text-[#302820]">
+                        {l.name}
                       </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+                    </div>
+                    <span className="font-serif-sc text-[11px] text-[#9A9084]">
+                      {l.entryCount}篇
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
+
+        {/* 8. Botanical Illustration & Handwriting Script Watermark (Bottom Right) */}
+        <BotanicalWatermark />
       </motion.div>
     </motion.div>
   );

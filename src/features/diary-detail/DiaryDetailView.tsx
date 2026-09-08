@@ -1,5 +1,5 @@
 // src/features/diary-detail/DiaryDetailView.tsx
-// Card Detail View (二级页): Single card view with 0.8x scale swipe preview & Unified Top Nav
+// Card Detail View (二级页): Single card view with 100% continuous 0.8x scale swipe preview & Unified Top Nav
 
 import React, { useState } from 'react';
 import { DiaryEntry } from '../../core/types/diary';
@@ -19,6 +19,8 @@ interface DiaryDetailViewProps {
   onEdit: (entry: DiaryEntry) => void;
   allEntries?: DiaryEntry[];
 }
+
+const CARD_STEP = 330; // Horizontal spacing between adjacent cards in slider
 
 export const DiaryDetailView: React.FC<DiaryDetailViewProps> = ({
   entry: initialEntry,
@@ -48,16 +50,20 @@ export const DiaryDetailView: React.FC<DiaryDetailViewProps> = ({
   const [showMenu, setShowMenu] = useState(false);
   const [isSwiping, setIsSwiping] = useState(false);
 
-  // Motion values for GPU-accelerated swipe without React re-render lag
+  // Motion values for GPU-accelerated continuous swipe without React re-render lag
   const dragX = useMotionValue(0);
 
-  // Derive neighbor card positions using Framer Motion transforms
-  const leftCardX = useTransform(dragX, (x) => x - 330);
-  const rightCardX = useTransform(dragX, (x) => x + 330);
+  // Derive card positions directly from dragX (1:1 motion tracking without lag or spring desync)
+  const farLeftX = useTransform(dragX, (x) => x - CARD_STEP * 2);
+  const leftCardX = useTransform(dragX, (x) => x - CARD_STEP);
+  const rightCardX = useTransform(dragX, (x) => x + CARD_STEP);
+  const farRightX = useTransform(dragX, (x) => x + CARD_STEP * 2);
 
   const currentEntry = entries[currentIndex] || initialEntry;
   const prevEntry = currentIndex > 0 ? entries[currentIndex - 1] : null;
+  const farPrevEntry = currentIndex > 1 ? entries[currentIndex - 2] : null;
   const nextEntry = currentIndex < entries.length - 1 ? entries[currentIndex + 1] : null;
+  const farNextEntry = currentIndex < entries.length - 2 ? entries[currentIndex + 2] : null;
 
   const handleToggleFavorite = (targetEntry: DiaryEntry) => {
     diaryRepo.toggleFavorite(targetEntry.id);
@@ -70,49 +76,57 @@ export const DiaryDetailView: React.FC<DiaryDetailViewProps> = ({
     }
   };
 
-  // Drag Handlers
+  // Drag Gesture Handlers
   const handleDragStart = () => {
     setIsSwiping(true);
   };
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
-    setIsSwiping(false);
-
     const swipeThreshold = 50;
-    const velocityThreshold = 250;
+    const velocityThreshold = 220;
 
-    let targetIndex = currentIndex;
+    let deltaIndex = 0;
     if (
       (info.offset.x < -swipeThreshold || info.velocity.x < -velocityThreshold) &&
       nextEntry
     ) {
-      targetIndex = Math.min(entries.length - 1, currentIndex + 1);
+      deltaIndex = 1;
     } else if (
       (info.offset.x > swipeThreshold || info.velocity.x > velocityThreshold) &&
       prevEntry
     ) {
-      targetIndex = Math.max(0, currentIndex - 1);
+      deltaIndex = -1;
     }
 
-    // Spring animate dragX back to 0 cleanly
-    animate(dragX, 0, {
+    const targetX = -deltaIndex * CARD_STEP;
+
+    // Smoothly animate dragX to target destination (so the target card glides smoothly to 0px center)
+    animate(dragX, targetX, {
       type: 'spring',
-      stiffness: 350,
+      stiffness: 300,
       damping: 28,
+      velocity: info.velocity.x,
+      onComplete: () => {
+        if (deltaIndex !== 0) {
+          // Synchronously reset dragX to 0 at the same time index increments!
+          // Since targetX was -deltaIndex * CARD_STEP, index + deltaIndex with dragX=0
+          // places ALL cards at the exact same screen pixel coordinates. Zero jump!
+          setCurrentIndex((prev) => prev + deltaIndex);
+          dragX.set(0);
+        }
+        setIsSwiping(false);
+      },
     });
-
-    if (targetIndex !== currentIndex) {
-      setCurrentIndex(targetIndex);
-    }
   };
 
   // Helper to render single diary card content
-  const renderCardContent = (entryItem: DiaryEntry) => {
+  // Note: Only attach initial layoutId to the initial entry when detail view opens to prevent Framer Motion duplicate layout collisions
+  const renderCardContent = (entryItem: DiaryEntry, isInitialCard: boolean) => {
     const [year, monthStr, dayStr] = entryItem.diaryDate.split('-');
     const monthNum = parseInt(monthStr, 10);
     const dayNum = parseInt(dayStr, 10);
 
-    return (
+    const paperContent = (
       <PaperSheet className="p-6 sm:p-7 relative shadow-paper-l1 w-full min-h-[480px] flex flex-col justify-between select-none">
         <div>
           {/* Physical Bookmark Ribbon */}
@@ -184,6 +198,19 @@ export const DiaryDetailView: React.FC<DiaryDetailViewProps> = ({
         </div>
       </PaperSheet>
     );
+
+    if (isInitialCard) {
+      return (
+        <motion.div
+          layoutId={`diary-card-${entryItem.id}`}
+          className="w-full h-full"
+        >
+          {paperContent}
+        </motion.div>
+      );
+    }
+
+    return <div className="w-full h-full">{paperContent}</div>;
   };
 
   return (
@@ -264,29 +291,27 @@ export const DiaryDetailView: React.FC<DiaryDetailViewProps> = ({
         </span>
       </div>
 
-      {/* 3. Motion-Powered GPU-Accelerated Stage */}
+      {/* 3. Motion-Powered Continuous Carousel Stage */}
       <div className="relative w-full max-w-md mx-auto px-4 flex-1 flex items-center justify-center pt-2 overflow-hidden">
         <div className="relative w-full flex items-center justify-center min-h-[500px]">
-          {/* Active Center Card */}
-          <motion.div
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.25}
-            style={{ x: dragX }}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            animate={{
-              scale: isSwiping ? 0.8 : 1,
-            }}
-            transition={{
-              type: 'spring',
-              stiffness: 300,
-              damping: 26,
-            }}
-            className="w-full relative z-20 cursor-grab active:cursor-grabbing origin-center touch-pan-y"
-          >
-            {renderCardContent(currentEntry)}
-          </motion.div>
+          {/* Far Left Preview Card */}
+          {farPrevEntry && (
+            <motion.div
+              style={{ x: farLeftX }}
+              animate={{
+                scale: 0.8,
+                opacity: isSwiping ? 0.7 : 0,
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 26,
+              }}
+              className="absolute z-10 w-full pointer-events-none origin-center"
+            >
+              {renderCardContent(farPrevEntry, farPrevEntry.id === initialEntry.id)}
+            </motion.div>
+          )}
 
           {/* Left Preview Card */}
           {prevEntry && (
@@ -301,11 +326,32 @@ export const DiaryDetailView: React.FC<DiaryDetailViewProps> = ({
                 stiffness: 300,
                 damping: 26,
               }}
-              className="absolute z-10 w-full pointer-events-none origin-center"
+              className="absolute z-15 w-full pointer-events-none origin-center"
             >
-              {renderCardContent(prevEntry)}
+              {renderCardContent(prevEntry, prevEntry.id === initialEntry.id)}
             </motion.div>
           )}
+
+          {/* Active Center Card (Interactive Drag Target) */}
+          <motion.div
+            drag="x"
+            dragConstraints={{ left: -CARD_STEP * 1.5, right: CARD_STEP * 1.5 }}
+            dragElastic={0.25}
+            style={{ x: dragX }}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            animate={{
+              scale: isSwiping ? 0.8 : 1,
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: 320,
+              damping: 28,
+            }}
+            className="w-full relative z-20 cursor-grab active:cursor-grabbing origin-center touch-pan-y"
+          >
+            {renderCardContent(currentEntry, currentEntry.id === initialEntry.id)}
+          </motion.div>
 
           {/* Right Preview Card */}
           {nextEntry && (
@@ -320,9 +366,28 @@ export const DiaryDetailView: React.FC<DiaryDetailViewProps> = ({
                 stiffness: 300,
                 damping: 26,
               }}
+              className="absolute z-15 w-full pointer-events-none origin-center"
+            >
+              {renderCardContent(nextEntry, nextEntry.id === initialEntry.id)}
+            </motion.div>
+          )}
+
+          {/* Far Right Preview Card */}
+          {farNextEntry && (
+            <motion.div
+              style={{ x: farRightX }}
+              animate={{
+                scale: 0.8,
+                opacity: isSwiping ? 0.7 : 0,
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 26,
+              }}
               className="absolute z-10 w-full pointer-events-none origin-center"
             >
-              {renderCardContent(nextEntry)}
+              {renderCardContent(farNextEntry, farNextEntry.id === initialEntry.id)}
             </motion.div>
           )}
         </div>

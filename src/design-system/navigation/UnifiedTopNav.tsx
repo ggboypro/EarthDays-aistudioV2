@@ -1,8 +1,9 @@
 // src/design-system/navigation/UnifiedTopNav.tsx
-// Unified Top Navigation Bar across all secondary pages (二级页)
+// Quiet Top Navigation Bar across all secondary pages
 
 import React from 'react';
 import { ChevronLeft } from 'lucide-react';
+import { colorTokens } from '../tokens/colors';
 
 interface UnifiedTopNavProps {
   title?: string;
@@ -18,32 +19,33 @@ export const UnifiedTopNav: React.FC<UnifiedTopNavProps> = ({
   rightElement,
 }) => {
   return (
-    <header className="w-full bg-[#FAF7F2]/95 backdrop-blur-xs border-b border-[#EDE6DA] px-4 py-2.5 flex items-center justify-between sticky top-0 z-40 select-none">
-      {/* Left Back Button */}
-      <div className="flex items-center min-w-[75px]">
+    <header className="w-full bg-[#FBF8F2]/95 backdrop-blur-xs border-b border-[#E5DDD1] px-4 py-3 flex items-center justify-between sticky top-0 z-40 select-none">
+      {/* Left Back Control (Text + Icon quiet affordance) */}
+      <div className="flex items-center min-w-[70px]">
         {onBack ? (
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-[4px] bg-[#F3EDE2] hover:bg-[#EBE2D3] border border-[#DDD3C3] text-[#5A4F44] font-serif-sc text-[12.5px] font-medium transition-colors cursor-pointer shadow-xs active:scale-95"
+            className="flex items-center gap-0.5 py-0.5 text-[#766C60] hover:text-[#302820] font-serif-sc text-[13.5px] transition-colors cursor-pointer"
           >
-            <ChevronLeft size={15} strokeWidth={2.2} />
+            <ChevronLeft size={16} strokeWidth={1.8} className="text-[#766C60]" />
             <span>{backText}</span>
           </button>
         ) : (
-          <div className="w-[75px]" />
+          <div className="w-[70px]" />
         )}
       </div>
 
       {/* Center Brand Title */}
-      <h1 className="font-editorial text-[16px] font-bold text-[#2C241E] tracking-wide text-center truncate mx-2">
+      <h1 className="font-editorial text-[16px] font-semibold text-[#302820] tracking-wide text-center truncate mx-2">
         {title}
       </h1>
 
       {/* Right Action Element / Spacer */}
-      <div className="flex items-center justify-end min-w-[75px]">
-        {rightElement ? rightElement : <div className="w-[75px]" />}
+      <div className="flex items-center justify-end min-w-[70px]">
+        {rightElement ? rightElement : <div className="w-[70px]" />}
       </div>
     </header>
   );
 };
+

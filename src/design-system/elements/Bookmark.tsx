@@ -1,5 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { colorTokens } from '../tokens/colors';
+import { shadowTokens } from '../tokens/shadows';
 
 interface BookmarkRibbonProps {
   isFavorite: boolean;
@@ -11,7 +13,7 @@ interface BookmarkRibbonProps {
 export const BookmarkRibbon: React.FC<BookmarkRibbonProps> = ({
   isFavorite,
   onClick,
-  color = '#A63828', // Classic vermillion fabric ribbon
+  color = colorTokens.bookmark, // #B45C42 Warm Terracotta silk ribbon
   size = 'md',
 }) => {
   const width = size === 'sm' ? 14 : size === 'md' ? 18 : 22;
@@ -34,22 +36,14 @@ export const BookmarkRibbon: React.FC<BookmarkRibbonProps> = ({
         style={{
           width,
           height,
-          backgroundColor: isFavorite ? color : '#9C8F80',
+          backgroundColor: isFavorite ? color : colorTokens.textMuted,
+          boxShadow: shadowTokens.bookmark,
         }}
-        className="relative shadow-bookmark rounded-b-[1px] transition-colors"
+        className="relative rounded-b-[1px] transition-colors"
       >
         {/* Fabric subtle weave line */}
         <div className="absolute inset-x-0 top-0 h-full border-x border-white/20 pointer-events-none" />
 
-        {/* V-shaped ribbon cutout at bottom */}
-        <div
-          className="absolute bottom-0 inset-x-0 w-0 h-0 border-l-[9px] border-r-[9px] border-b-[8px] border-transparent"
-          style={{
-            borderLeftWidth: width / 2,
-            borderRightWidth: width / 2,
-            borderBottomColor: 'transparent',
-          }}
-        />
         <svg
           viewBox="0 0 20 30"
           className="absolute inset-0 w-full h-full pointer-events-none"
@@ -57,15 +51,16 @@ export const BookmarkRibbon: React.FC<BookmarkRibbonProps> = ({
         >
           <polygon
             points="0,30 10,22 20,30 20,0 0,0"
-            fill={isFavorite ? color : '#8F8578'}
+            fill={isFavorite ? color : '#9A9084'}
           />
         </svg>
 
-        {/* Subtle gold stitch detail */}
+        {/* Subtle gold/cream stitch detail */}
         {isFavorite && (
-          <div className="absolute top-1 inset-x-1 border-t border-[#F5E2B3]/50" />
+          <div className="absolute top-1 inset-x-1 border-t border-[#FBF8F2]/60" />
         )}
       </motion.div>
     </button>
   );
 };
+

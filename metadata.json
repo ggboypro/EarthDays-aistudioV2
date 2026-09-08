@@ -1,0 +1,8 @@
+{
+  "name": "Remix Earth Days Dev Guide",
+  "description": "A comprehensive architectural audit and development framework for the Earth Days project\u0027s system modernization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

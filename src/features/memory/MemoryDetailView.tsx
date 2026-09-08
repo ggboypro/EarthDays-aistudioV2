@@ -1,0 +1,227 @@
+import React, { useState } from 'react';
+import { Memory, BookDraft, BookChapter, BookPageSlot } from '../../core/types/book';
+import { DiaryEntry } from '../../core/types/diary';
+import { diaryRepo } from '../../core/storage/diaryRepository';
+import { PaperSheet } from '../../design-system/paper/PaperSheet';
+import { PhotoPrint } from '../../design-system/photo/PhotoPrint';
+import { motion } from 'motion/react';
+
+interface MemoryDetailViewProps {
+  memory: Memory;
+  onBack: () => void;
+  onOpenBook: (book: BookDraft) => void;
+  onEntryClick: (entry: DiaryEntry) => void;
+}
+
+export const MemoryDetailView: React.FC<MemoryDetailViewProps> = ({
+  memory,
+  onBack,
+  onOpenBook,
+  onEntryClick,
+}) => {
+  const allEntries = diaryRepo.getAllEntries();
+  const memoryEntries = allEntries.filter((e) => memory.diaryIds.includes(e.id));
+
+  const [isCompilingBook, setIsCompilingBook] = useState(false);
+
+  // Collect all photos in this memory
+  const allPhotos = memoryEntries.flatMap((e) => e.photos || []);
+
+  const handleCompileToBook = () => {
+    setIsCompilingBook(true);
+
+    setTimeout(() => {
+      // Build book pages from memory entries
+      const pages: BookPageSlot[] = [
+        {
+          id: `p_cover_opener_${Date.now()}`,
+          pageNumber: 1,
+          layout: 'L08_chapter_opener',
+          chapterTitle: memory.title,
+          quote: memory.subtitle || '“每一段留下的日子，都在照亮未来的我们。”',
+          photos: [],
+        },
+      ];
+
+      let pageCount = 2;
+      memoryEntries.forEach((entry) => {
+        if (entry.photos && entry.photos.length >= 2) {
+          pages.push({
+            id: `p_${entry.id}_multi`,
+            pageNumber: pageCount++,
+            layout: 'L03_two_photos',
+            diaryDate: entry.diaryDate,
+            title: entry.title,
+            bodyText: entry.body,
+            photos: entry.photos,
+          });
+        } else if (entry.photos && entry.photos.length === 1) {
+          pages.push({
+            id: `p_${entry.id}_single`,
+            pageNumber: pageCount++,
+            layout: 'L06_photo_with_story',
+            diaryDate: entry.diaryDate,
+            title: entry.title,
+            bodyText: entry.body,
+            photos: entry.photos,
+          });
+        } else {
+          pages.push({
+            id: `p_${entry.id}_text`,
+            pageNumber: pageCount++,
+            layout: 'L07_date_journal',
+            diaryDate: entry.diaryDate,
+            title: entry.title,
+            bodyText: entry.body,
+            photos: [],
+          });
+        }
+      });
+
+      // Closing page
+      pages.push({
+        id: `p_end_${Date.now()}`,
+        pageNumber: pageCount,
+        layout: 'L09_quote_whitespace',
+        quote: '生活会忘记，但纸张与墨水不会。\n我们在地球上的日子，每一页都算数。',
+        photos: [],
+      });
+
+      const newBook: BookDraft = {
+        id: `book_from_${memory.id}_${Date.now()}`,
+        memoryId: memory.id,
+        title: memory.title,
+        subtitle: memory.subtitle || '我在地球的日子 · 特别纪念册',
+        authorName: '地球记录者',
+        coverImage: memory.coverImage,
+        coverColor: '#2C3A2E',
+        spineText: `${memory.title} · 纪念册`,
+        paperType: 'classic_warm_cream_140g',
+        bookStyle: 'editorial',
+        totalPageCount: pages.length,
+        status: 'saved',
+        version: 'v1.0 (出版草稿)',
+        createdAt: new Date().toISOString().split('T')[0],
+        updatedAt: new Date().toISOString().split('T')[0],
+        chapters: [
+          {
+            id: 'chapter_1',
+            title: memory.title,
+            pages,
+          },
+        ],
+      };
+
+      diaryRepo.saveBook(newBook);
+      setIsCompilingBook(false);
+      onOpenBook(newBook);
+    }, 800);
+  };
+
+  return (
+    <div className="min-h-screen pb-28 pt-3 px-4 max-w-md mx-auto">
+      {/* Top Bar */}
+      <header className="flex items-center justify-between py-2 mb-3">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-[4px] bg-[#FAF7F2] border border-[#E0D7C9] text-[#5A4F44] font-serif-sc text-[13px] hover:bg-[#F0E9DC] cursor-pointer shadow-sm"
+        >
+          <span>← 返回相册</span>
+        </button>
+
+        <span className="font-serif-sc text-[12px] text-[#867B6E]">
+          收录 {memoryEntries.length} 篇日记 · {allPhotos.length} 张照片
+        </span>
+      </header>
+
+      {/* Memory Hero Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-4"
+      >
+        <div className="relative rounded-[6px] overflow-hidden border border-[#D5CBBF] shadow-md aspect-[16/9]">
+          <img src={memory.coverImage} alt={memory.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-4 text-white">
+            <h1 className="font-serif-sc text-[20px] font-bold tracking-tight">
+              {memory.title}
+            </h1>
+            {memory.subtitle && (
+              <p className="font-serif-sc text-[12px] text-white/80 mt-0.5">
+                {memory.subtitle}
+              </p>
+            )}
+            <span className="font-editorial text-[11px] text-white/60 mt-1">
+              {memory.startDate} ~ {memory.endDate}
+            </span>
+          </div>
+        </div>
+
+        {/* 核心动作：把这段日子留下来 (生成实体书出版物) */}
+        <PaperSheet className="p-4 bg-[#FAF6EE] border-[#CFC3B0] flex items-center justify-between shadow-sm">
+          <div>
+            <div className="font-serif-sc text-[14px] font-bold text-[#2C241E]">
+              📖 把这段日子留下来
+            </div>
+            <div className="font-serif-sc text-[11px] text-[#7A6F62] mt-0.5">
+              自动按出版物规格排版装订，生成精装画册
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleCompileToBook}
+            disabled={isCompilingBook}
+            className="px-3.5 py-1.5 rounded-[4px] bg-[#2C241E] hover:bg-[#40352A] text-white font-serif-sc text-[12.5px] font-medium transition-colors cursor-pointer shadow-sm disabled:opacity-50"
+          >
+            {isCompilingBook ? '正在排版装订...' : '生成画册草稿'}
+          </button>
+        </PaperSheet>
+
+        {/* Memory Entries Timeline */}
+        <div className="space-y-3 pt-2">
+          <h2 className="font-serif-sc text-[14px] font-bold text-[#2C241E] flex items-center gap-1.5">
+            <span>🔖 收录的纸页轨迹</span>
+          </h2>
+
+          {memoryEntries.map((entry) => (
+            <PaperSheet
+              key={entry.id}
+              onClick={() => onEntryClick(entry)}
+              className="p-4 cursor-pointer hover:bg-[#FDFBF9] transition-all space-y-2"
+            >
+              <div className="flex items-baseline justify-between border-b border-[#EAE2D5] pb-1.5">
+                <span className="font-editorial text-[14px] font-bold text-[#2A231C]">
+                  {entry.diaryDate}
+                </span>
+                <span className="font-serif-sc text-[11.5px] text-[#867B6E]">
+                  {entry.dayOfWeek} {entry.location?.name ? `· ${entry.location.name}` : ''}
+                </span>
+              </div>
+
+              {entry.title && (
+                <div className="font-serif-sc text-[14px] font-semibold text-[#2C241E]">
+                  {entry.title}
+                </div>
+              )}
+
+              <p className="font-serif-sc text-[12.5px] text-[#42382D] line-clamp-3 leading-relaxed">
+                {entry.body}
+              </p>
+
+              {entry.photos && entry.photos.length > 0 && (
+                <div className="flex gap-2 pt-1 overflow-x-auto">
+                  {entry.photos.map((ph, idx) => (
+                    <div key={idx} className="w-16 h-16 rounded-[2px] overflow-hidden border border-black/10 shrink-0">
+                      <img src={ph.url} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </PaperSheet>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  );
+};

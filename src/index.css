@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif-sc: 'Noto Serif SC', serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-hand: 'Ma Shan Zheng', cursive;
+    --font-editorial: 'Playfair Display', serif;
+    --font-classical: 'Cinzel', serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #ECE5DA;
+    color: #2D2721;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Typography Utilities */
+.font-serif-sc {
+  font-family: var(--font-serif-sc);
+}
+.font-editorial {
+  font-family: var(--font-editorial);
+}
+.font-classical {
+  font-family: var(--font-classical);
+}
+.font-hand {
+  font-family: var(--font-hand);
+}
+
+/* Earth Diary Material Shadows (Single Left-Top Ambient Light Source) */
+.shadow-paper-l1 {
+  box-shadow: 
+    0 1px 2px rgba(40, 32, 22, 0.05),
+    0 3px 8px -1px rgba(40, 32, 22, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.shadow-photo-l2 {
+  box-shadow:
+    0 4px 12px -2px rgba(30, 24, 18, 0.16),
+    0 2px 4px rgba(30, 24, 18, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-photo-stack {
+  box-shadow:
+    2px 5px 15px -2px rgba(28, 22, 16, 0.18),
+    0 2px 4px rgba(28, 22, 16, 0.06);
+}
+
+.shadow-book-spine {
+  box-shadow:
+    inset -4px 0 8px rgba(0, 0, 0, 0.35),
+    inset 4px 0 6px rgba(255, 255, 255, 0.25),
+    4px 8px 20px -3px rgba(18, 14, 10, 0.35);
+}
+
+.shadow-shelf-groove {
+  box-shadow:
+    0 8px 16px -4px rgba(15, 12, 9, 0.4),
+    inset 0 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.shadow-wax-seal {
+  box-shadow:
+    0 4px 10px rgba(78, 24, 16, 0.35),
+    inset 0 2px 3px rgba(255, 255, 255, 0.3),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.shadow-bookmark {
+  box-shadow:
+    2px 4px 8px rgba(35, 25, 18, 0.22),
+    0 1px 2px rgba(35, 25, 18, 0.15);
+}
+
+/* Paper Deckle/Ripped edge pattern */
+.torn-paper-edge-bottom {
+  mask-image: linear-gradient(to bottom, black 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 94%, transparent 100%);
+}
+
+.paper-grain {
+  background-image: radial-gradient(rgba(45, 38, 30, 0.04) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 120, 100, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 120, 100, 0.45);
+}

@@ -5,6 +5,7 @@ import { diaryRepo } from '../../core/storage/diaryRepository';
 import { motion } from 'motion/react';
 
 interface CreateLedgerModalProps {
+  ledgerToEdit?: Ledger;
   onClose: () => void;
   onCreated: (ledger: Ledger) => void;
 }
@@ -29,35 +30,54 @@ const SAMPLE_COVERS = [
 ];
 
 export const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({
+  ledgerToEdit,
   onClose,
   onCreated,
 }) => {
-  const [name, setName] = useState('');
-  const [subtitle, setSubtitle] = useState('');
-  const [selectedCover, setSelectedCover] = useState(SAMPLE_COVERS[0].url);
+  const [name, setName] = useState(ledgerToEdit ? ledgerToEdit.name : '');
+  const [subtitle, setSubtitle] = useState(
+    ledgerToEdit ? ledgerToEdit.subtitle || '' : ''
+  );
+  const [selectedCover, setSelectedCover] = useState(
+    ledgerToEdit ? ledgerToEdit.coverImage : SAMPLE_COVERS[0].url
+  );
 
   const themePreview = generateThemeFromCover(name || '新账本', selectedCover);
 
-  const handleCreate = () => {
+  const handleSave = () => {
     if (!name.trim()) {
-      alert('请为新账本起一个名字');
+      alert('请为账本起一个名字');
       return;
     }
 
-    const newLedger: Ledger = {
-      id: `ledger_${Date.now()}`,
-      name: name.trim(),
-      subtitle: subtitle.trim() || undefined,
-      coverImage: selectedCover,
-      theme: themePreview,
-      entryCount: 0,
-      spineColor: themePreview.primary,
-      createdAt: new Date().toISOString().split('T')[0],
-      updatedAt: new Date().toISOString().split('T')[0],
-    };
+    if (ledgerToEdit) {
+      const updatedLedger: Ledger = {
+        ...ledgerToEdit,
+        name: name.trim(),
+        subtitle: subtitle.trim() || undefined,
+        coverImage: selectedCover,
+        theme: themePreview,
+        spineColor: themePreview.primary,
+        updatedAt: new Date().toISOString().split('T')[0],
+      };
+      diaryRepo.updateLedger(updatedLedger);
+      onCreated(updatedLedger);
+    } else {
+      const newLedger: Ledger = {
+        id: `ledger_${Date.now()}`,
+        name: name.trim(),
+        subtitle: subtitle.trim() || undefined,
+        coverImage: selectedCover,
+        theme: themePreview,
+        entryCount: 0,
+        spineColor: themePreview.primary,
+        createdAt: new Date().toISOString().split('T')[0],
+        updatedAt: new Date().toISOString().split('T')[0],
+      };
 
-    diaryRepo.addLedger(newLedger);
-    onCreated(newLedger);
+      diaryRepo.addLedger(newLedger);
+      onCreated(newLedger);
+    }
   };
 
   return (
@@ -70,7 +90,7 @@ export const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({
       >
         <div className="flex items-center justify-between pb-3 border-b border-[#EAE2D5] mb-4">
           <h2 className="font-serif-sc text-[17px] font-semibold text-[#2C241E]">
-            拿出一本空白账本
+            {ledgerToEdit ? '修改账本信息' : '拿出一本空白账本'}
           </h2>
           <button
             type="button"
@@ -180,10 +200,10 @@ export const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({
           {/* Submit */}
           <button
             type="button"
-            onClick={handleCreate}
+            onClick={handleSave}
             className="w-full py-2.5 rounded-[4px] bg-[#2C241E] text-white font-serif-sc text-[13.5px] font-medium hover:bg-[#43372C] transition-colors cursor-pointer shadow-sm"
           >
-            放入书架并开始书写
+            {ledgerToEdit ? '保存修改' : '放入书架并开始书写'}
           </button>
         </div>
       </motion.div>

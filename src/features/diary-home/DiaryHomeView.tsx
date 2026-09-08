@@ -34,8 +34,9 @@ export const DiaryHomeView: React.FC<DiaryHomeViewProps> = ({
   const [entries, setEntries] = useState<DiaryEntry[]>(diaryRepo.getEntriesByLedger(currentLedger.id));
   const [currentEntryId, setCurrentEntryId] = useState<string>(entries[0]?.id || '');
 
-  // Create Ledger Modal
+  // Create / Edit Ledger Modal State
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+  const [editingLedger, setEditingLedger] = useState<Ledger | undefined>(undefined);
 
   // Synchronize state on repo changes
   useEffect(() => {
@@ -90,7 +91,14 @@ export const DiaryHomeView: React.FC<DiaryHomeViewProps> = ({
         ledgers={ledgers}
         currentLedgerId={currentLedger.id}
         onSelectLedger={handleSelectLedger}
-        onOpenAddLedger={() => setShowCreateModal(true)}
+        onOpenAddLedger={() => {
+          setEditingLedger(undefined);
+          setShowCreateModal(true);
+        }}
+        onEditLedger={(ledger) => {
+          setEditingLedger(ledger);
+          setShowCreateModal(true);
+        }}
       >
         {/* Core Memory Gallery: Always mounted, horizontal physics and card positions completely preserved */}
         <MemoryGallery
@@ -104,14 +112,19 @@ export const DiaryHomeView: React.FC<DiaryHomeViewProps> = ({
         />
       </LedgerPresentationStage>
 
-      {/* 2. Create Ledger Modal */}
+      {/* 2. Create / Edit Ledger Modal */}
       <AnimatePresence>
         {showCreateModal && (
           <CreateLedgerModal
-            onClose={() => setShowCreateModal(false)}
-            onCreated={(newLedger) => {
+            ledgerToEdit={editingLedger}
+            onClose={() => {
               setShowCreateModal(false);
-              handleSelectLedger(newLedger);
+              setEditingLedger(undefined);
+            }}
+            onCreated={(savedLedger) => {
+              setShowCreateModal(false);
+              setEditingLedger(undefined);
+              handleSelectLedger(savedLedger);
             }}
           />
         )}

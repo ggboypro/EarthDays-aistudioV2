@@ -4,6 +4,7 @@ import { DiaryEntry } from '../../core/types/diary';
 import { diaryRepo } from '../../core/storage/diaryRepository';
 import { PaperSheet } from '../../design-system/paper/PaperSheet';
 import { PhotoPrint } from '../../design-system/photo/PhotoPrint';
+import { UnifiedTopNav } from '../../design-system/navigation/UnifiedTopNav';
 import { motion } from 'motion/react';
 
 interface MemoryDetailViewProps {
@@ -119,22 +120,20 @@ export const MemoryDetailView: React.FC<MemoryDetailViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen pb-28 pt-3 px-4 max-w-md mx-auto">
-      {/* Top Bar */}
-      <header className="flex items-center justify-between py-2 mb-3">
-        <button
-          type="button"
-          onClick={onBack}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-[4px] bg-[#FAF7F2] border border-[#E0D7C9] text-[#5A4F44] font-serif-sc text-[13px] hover:bg-[#F0E9DC] cursor-pointer shadow-sm"
-        >
-          <span>← 返回相册</span>
-        </button>
+    <div className="min-h-screen pb-28 bg-[#F7F4EE]">
+      {/* Unified Top Navigation */}
+      <UnifiedTopNav
+        title="我在地球的日子"
+        onBack={onBack}
+        backText="返回相册"
+        rightElement={
+          <span className="font-serif-sc text-[11px] text-[#867B6E]">
+            {memoryEntries.length}篇 · {allPhotos.length}图
+          </span>
+        }
+      />
 
-        <span className="font-serif-sc text-[12px] text-[#867B6E]">
-          收录 {memoryEntries.length} 篇日记 · {allPhotos.length} 张照片
-        </span>
-      </header>
-
+      <div className="max-w-md mx-auto px-4 pt-3">
       {/* Memory Hero Banner */}
       <motion.div
         initial={{ opacity: 0, y: 15 }}
@@ -222,6 +221,7 @@ export const MemoryDetailView: React.FC<MemoryDetailViewProps> = ({
           ))}
         </div>
       </motion.div>
+      </div>
     </div>
   );
 };

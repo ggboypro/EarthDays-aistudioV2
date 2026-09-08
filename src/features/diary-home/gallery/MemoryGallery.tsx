@@ -7,6 +7,7 @@ import { GalleryCard } from './GalleryCard';
 import { computeSpatialProps } from './GallerySpatialEngine';
 import { MemoryGalleryScrubber } from './MemoryGalleryScrubber';
 import { motionTokens } from '../../../motion/tokens';
+import { motion } from 'motion/react';
 
 interface MemoryGalleryProps {
   entries: DiaryEntry[];
@@ -170,12 +171,21 @@ export const MemoryGallery: React.FC<MemoryGalleryProps> = ({
     }
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e: React.PointerEvent) => {
     if (!isDragging) return;
     setIsDragging(false);
 
     const totalOffset = dragOffset;
     const absOffset = Math.abs(totalOffset);
+
+    // If movement is tiny (< 10px), treat it as a direct tap/click on the card
+    if (absOffset < 10) {
+      if (entries[activeIndex]) {
+        onEntryClick(entries[activeIndex]);
+      }
+      setDragOffset(0);
+      return;
+    }
 
     // Compute release velocity (px/ms) from recent history samples
     const history = pointerHistoryRef.current;
@@ -292,16 +302,17 @@ export const MemoryGallery: React.FC<MemoryGalleryProps> = ({
           const translateX = distance * cardSpacing;
 
           return (
-            <div
+            <motion.div
               key={entry.id}
+              animate={{ x: translateX }}
+              transition={
+                isDragging
+                  ? { type: 'just' }
+                  : { type: 'spring', stiffness: 320, damping: 28 }
+              }
               style={{
                 position: 'absolute',
-                transform: `translateX(${translateX}px)`,
                 zIndex: spatial.zIndex,
-                transition: isDragging
-                  ? 'none'
-                  : `transform ${snapDurationMs}ms cubic-bezier(0.16, 1, 0.3, 1)`,
-                willChange: isDragging ? 'transform' : 'auto',
               }}
             >
               <GalleryCard
@@ -310,7 +321,7 @@ export const MemoryGallery: React.FC<MemoryGalleryProps> = ({
                 isSettling={isSettling}
                 isNewlyInserted={entry.id === newlyInsertedId}
                 onCardClick={() => {
-                  if (Math.abs(distance) < 0.15) {
+                  if (entry.id === currentId || index === activeIndex) {
                     onEntryClick(entry);
                   } else {
                     navigateToIndex(index);
@@ -318,7 +329,7 @@ export const MemoryGallery: React.FC<MemoryGalleryProps> = ({
                 }}
                 onToggleFavorite={onToggleFavorite}
               />
-            </div>
+            </motion.div>
           );
         })}
       </div>

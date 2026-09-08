@@ -38,7 +38,10 @@ export const GalleryCard: React.FC<GalleryCardProps> = ({
 
   return (
     <div
-      onClick={onCardClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        onCardClick();
+      }}
       style={{
         zIndex,
         opacity,

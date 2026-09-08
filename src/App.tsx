@@ -13,9 +13,7 @@ import { ProfileDeskView } from './features/profile/ProfileDeskView';
 import { WelcomeView } from './features/onboarding/WelcomeView';
 import { MemoryDetailView } from './features/memory/MemoryDetailView';
 import { BookReaderView } from './features/publishing/BookReaderView';
-import { MotionLedgerDemoView } from './features/demo/MotionLedgerDemoView';
-import { AnimatePresence } from 'motion/react';
-import { Sparkles } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 
 function AppContent() {
   const { theme } = useTheme();
@@ -25,7 +23,6 @@ function AppContent() {
   const [detailEntry, setDetailEntry] = useState<DiaryEntry | null>(null);
   const [activeMemory, setActiveMemory] = useState<Memory | null>(null);
   const [readingBook, setReadingBook] = useState<BookDraft | null>(null);
-  const [showMotionDemo, setShowMotionDemo] = useState(false);
 
   const [showWelcome, setShowWelcome] = useState(false);
   const [showWriteModal, setShowWriteModal] = useState(false);
@@ -57,31 +54,10 @@ function AppContent() {
       {/* Background ambient lighting pattern */}
       <div className="fixed inset-0 bg-gradient-to-b from-white/20 to-black/5 pointer-events-none" />
 
-      {/* Floating Demo Trigger (Top Right) */}
-      {!showMotionDemo && !readingBook && !showWelcome && (
-        <div className="fixed top-3 right-3 sm:right-6 z-50">
-          <button
-            type="button"
-            onClick={() => setShowMotionDemo(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2C241E]/90 hover:bg-[#8A2B20] text-[#FAF7F2] text-xs font-serif-sc font-medium shadow-[0_3px_12px_rgba(40,30,20,0.22)] backdrop-blur-xs border border-white/10 transition-all cursor-pointer active:scale-95"
-            title="进入 Motion 账本动效实验页面"
-          >
-            <Sparkles size={13} className="text-amber-300" />
-            <span>动效 Demo</span>
-          </button>
-        </div>
-      )}
-
       {/* Main Container - Full viewport responsive workspace without fake phone shell */}
       <div className="relative z-10 w-full min-h-screen flex flex-col">
         {/* Full-screen View Hierarchy */}
-        {showMotionDemo ? (
-          <MotionLedgerDemoView
-            onBack={() => setShowMotionDemo(false)}
-            onEntryClick={(entry) => setDetailEntry(entry)}
-            onWriteClick={() => setShowWriteModal(true)}
-          />
-        ) : showWelcome ? (
+        {showWelcome ? (
           <div className="w-full max-w-2xl mx-auto min-h-screen">
             <WelcomeView onStart={() => setShowWelcome(false)} />
           </div>
@@ -90,46 +66,75 @@ function AppContent() {
             book={readingBook}
             onClose={() => setReadingBook(null)}
           />
-        ) : activeMemory ? (
-          <div className="w-full max-w-3xl mx-auto min-h-screen">
-            <MemoryDetailView
-              memory={activeMemory}
-              onBack={() => setActiveMemory(null)}
-              onOpenBook={(book) => {
-                setActiveMemory(null);
-                setReadingBook(book);
-              }}
-              onEntryClick={(entry) => setDetailEntry(entry)}
-            />
-          </div>
-        ) : detailEntry ? (
-          <div className="w-full max-w-2xl mx-auto min-h-screen">
-            <DiaryDetailView
-              entry={detailEntry}
-              onBack={() => setDetailEntry(null)}
-              onEdit={handleEditFromDetail}
-            />
-          </div>
-        ) : activeTab === 'diary' ? (
-          <DiaryHomeView
-            onOpenBookshelf={() => setShowBookshelf(true)}
-            onOpenAlbum={() => setShowAlbum(true)}
-            onEntryClick={handleEntryClick}
-            onWriteClick={() => handleOpenWrite()}
-            newlyInsertedId={lastInsertedId}
-          />
         ) : (
-          <div className="w-full max-w-2xl mx-auto min-h-screen">
-            <ProfileDeskView
-              onOpenBookshelf={() => setShowBookshelf(true)}
-              onOpenAlbum={() => setShowAlbum(true)}
-              onReplayWelcome={() => setShowWelcome(true)}
-            />
-          </div>
+          <>
+            {/* Primary Tab Views: Kept mounted so navigation never re-triggers entrance animations */}
+            <div className={activeTab === 'diary' ? 'block w-full min-h-screen' : 'hidden'}>
+              <DiaryHomeView
+                onOpenBookshelf={() => setShowBookshelf(true)}
+                onOpenAlbum={() => setShowAlbum(true)}
+                onEntryClick={handleEntryClick}
+                onWriteClick={() => handleOpenWrite()}
+                newlyInsertedId={lastInsertedId}
+              />
+            </div>
+
+            <div className={activeTab === 'profile' ? 'block w-full max-w-2xl mx-auto min-h-screen' : 'hidden'}>
+              <ProfileDeskView
+                onOpenBookshelf={() => setShowBookshelf(true)}
+                onOpenAlbum={() => setShowAlbum(true)}
+                onReplayWelcome={() => setShowWelcome(true)}
+              />
+            </div>
+
+            {/* Memory Detail Overlay */}
+            <AnimatePresence>
+              {activeMemory && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 15 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed inset-0 z-40 bg-[#F7F4EE] overflow-y-auto"
+                >
+                  <div className="w-full max-w-3xl mx-auto min-h-screen">
+                    <MemoryDetailView
+                      memory={activeMemory}
+                      onBack={() => setActiveMemory(null)}
+                      onOpenBook={(book) => {
+                        setActiveMemory(null);
+                        setReadingBook(book);
+                      }}
+                      onEntryClick={(entry) => setDetailEntry(entry)}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Diary Card Detail Overlay */}
+            <AnimatePresence>
+              {detailEntry && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 15 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed inset-0 z-50 bg-[#F7F4EE] overflow-y-auto"
+                >
+                  <DiaryDetailView
+                    entry={detailEntry}
+                    onBack={() => setDetailEntry(null)}
+                    onEdit={handleEditFromDetail}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
         )}
 
         {/* Bottom Navigation Dock */}
-        {!detailEntry && !activeMemory && !readingBook && !showWelcome && !showMotionDemo && (
+        {!detailEntry && !activeMemory && !readingBook && !showWelcome && (
           <PaperBottomNav
             activeTab={activeTab}
             onTabChange={(tab) => {

@@ -12,7 +12,7 @@ import {
   ChevronRight,
   Plus,
   BookOpen,
-  Calendar,
+  Pencil,
 } from 'lucide-react';
 
 interface LedgerPresentationStageProps {
@@ -20,6 +20,7 @@ interface LedgerPresentationStageProps {
   currentLedgerId: string;
   onSelectLedger: (ledger: Ledger) => void;
   onOpenAddLedger: () => void;
+  onEditLedger?: (ledger: Ledger) => void;
   children: React.ReactNode; // Core Memory Gallery
 }
 
@@ -28,6 +29,7 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
   currentLedgerId,
   onSelectLedger,
   onOpenAddLedger,
+  onEditLedger,
   children,
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -40,9 +42,6 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
   const currentLedger = ledgers[currentIndex] || ledgers[0];
   const prevLedger = currentIndex > 0 ? ledgers[currentIndex - 1] : null;
   const nextLedger = currentIndex < ledgers.length - 1 ? ledgers[currentIndex + 1] : null;
-
-  // Ref for shelf drag tracking
-  const isDraggingShelfRef = useRef<boolean>(false);
 
   // Spring physics parameter
   const springTransition = {
@@ -77,59 +76,39 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
     }
   };
 
+  // Combine real ledgers with the "+" add book item at the end
+  const allShelfItems = [
+    ...ledgers.map((l) => ({ type: 'ledger' as const, ledger: l, id: l.id })),
+    { type: 'add' as const, ledger: null, id: 'add_new_ledger_slot' },
+  ];
+
   return (
     <div className="relative w-full flex-1 flex flex-col items-center justify-start select-none">
       {/* ========================================================================= */}
       {/* 1. TOP DOCK HEADER BAR */}
       {/* ========================================================================= */}
       <div className="relative z-40 w-full max-w-4xl mx-auto px-4 pt-2.5 pb-1 flex items-center justify-between">
-        {/* Left: Brand / Current Mode badge */}
+        {/* Left: Clean Brand Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-[#2C241E] text-[#F7F4EE] flex items-center justify-center shadow-xs">
-            <BookOpen size={13} />
+          <div className="w-6.5 h-6.5 rounded-full bg-[#2C241E] text-[#F7F4EE] flex items-center justify-center shadow-xs">
+            <BookOpen size={14} />
           </div>
-          <div className="flex flex-col">
-            <span className="font-editorial text-[13px] font-bold text-[#2C241E] leading-tight">
-              我在地球的日子
-            </span>
-            <span className="font-serif-sc text-[10px] text-[#7A6D5E] leading-none">
-              {isExpanded ? '书架案台 · 核心展卷' : `当前卷 · ${currentLedger.name}`}
-            </span>
-          </div>
+          <span className="font-editorial text-[16px] font-bold text-[#2C241E] tracking-wide">
+            我在地球的日子
+          </span>
         </div>
 
-        {/* Right: Actions (Add new ledger & Expand/Collapse Toggle) */}
-        <div className="flex items-center gap-1.5">
-          {/* Add Ledger Button */}
+        {/* Right: Show collapse button only when expanded */}
+        {isExpanded && (
           <button
             type="button"
-            onClick={onOpenAddLedger}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-[#FAF7F2] border border-[#DDD4C5] text-[#5E5244] hover:text-[#2C241E] hover:border-[#B5A998] text-[11px] font-serif-sc font-medium transition-colors cursor-pointer shadow-xs active:scale-95"
-            title="装订新账本"
+            onClick={() => setIsExpanded(false)}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#2C241E] text-[#FAF7F2] hover:bg-[#8A2B20] text-xs font-serif-sc font-medium shadow-xs transition-all cursor-pointer active:scale-95"
           >
-            <Plus size={12} strokeWidth={2.4} />
-            <span className="hidden sm:inline">新账本</span>
+            <ChevronUp size={14} strokeWidth={2.4} />
+            <span>收起</span>
           </button>
-
-          {/* Expand / Collapse Main Trigger */}
-          <button
-            type="button"
-            onClick={() => setIsExpanded((prev) => !prev)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2C241E] text-[#FAF7F2] hover:bg-[#8A2B20] text-xs font-serif-sc font-medium shadow-[0_2px_8px_rgba(40,30,20,0.18)] transition-all cursor-pointer active:scale-95"
-          >
-            {isExpanded ? (
-              <>
-                <ChevronUp size={14} strokeWidth={2.4} />
-                <span>收起至顶部</span>
-              </>
-            ) : (
-              <>
-                <ChevronDown size={14} strokeWidth={2.4} />
-                <span>展开书架</span>
-              </>
-            )}
-          </button>
-        </div>
+        )}
       </div>
 
       {/* ========================================================================= */}
@@ -137,26 +116,11 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
       {/* ========================================================================= */}
       <motion.div
         animate={{
-          // When collapsed: docked directly at top (y: 0)
-          // When expanded: moved with ample top margin into center desk (y: 168px)
           y: isExpanded ? 168 : 0,
         }}
         transition={springTransition}
         className="relative z-30 w-full max-w-4xl mx-auto px-4 flex flex-col items-center shrink-0"
       >
-        {/* Top Shelf Micro Status (Fades when expanded) */}
-        <motion.div
-          animate={{
-            opacity: isExpanded ? 0 : 1,
-            height: isExpanded ? 0 : 'auto',
-            marginBottom: isExpanded ? 0 : 4,
-          }}
-          transition={smoothTransition}
-          className="w-full flex items-center justify-between text-[11px] text-[#8C8071] font-serif-sc px-2 overflow-hidden"
-        >
-          <span>书架横栏 · 点击选中账本或展开核心</span>
-          <span>共 {ledgers.length} 卷</span>
-        </motion.div>
 
         {/* Books Track / 3D Presentation Area */}
         <div className="relative w-full flex items-center justify-center min-h-[64px]">
@@ -169,8 +133,10 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
             dragElastic={0.25}
             onDragEnd={handleDragEnd}
           >
-            {ledgers.map((ledger, idx) => {
-              const isSelected = ledger.id === currentLedgerId;
+            {allShelfItems.map((item, idx) => {
+              const isAddCard = item.type === 'add';
+              const ledger = item.ledger;
+              const isSelected = !isAddCard && ledger?.id === currentLedgerId;
               const offset = idx - currentIndex; // -1 for left neighbor, +1 for right neighbor, 0 for center
 
               // Calculate motion properties
@@ -213,7 +179,7 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
                   targetOpacity = 1;
                   targetZIndex = 30;
                 } else if (offset === -1) {
-                  // Left Neighbor Book
+                  // Left Neighbor
                   targetWidth = 196;
                   targetHeight = 266;
                   targetX = -195;
@@ -224,7 +190,7 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
                   targetOpacity = 0.76;
                   targetZIndex = 15;
                 } else if (offset === 1) {
-                  // Right Neighbor Book
+                  // Right Neighbor
                   targetWidth = 196;
                   targetHeight = 266;
                   targetX = 195;
@@ -235,7 +201,7 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
                   targetOpacity = 0.76;
                   targetZIndex = 15;
                 } else {
-                  // Other distant books
+                  // Other distant books / cards
                   targetWidth = 175;
                   targetHeight = 245;
                   targetX = offset < 0 ? -320 : 320;
@@ -250,7 +216,7 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
 
               return (
                 <motion.div
-                  key={ledger.id}
+                  key={item.id}
                   animate={{
                     x: targetX,
                     y: targetY,
@@ -269,14 +235,22 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
                     transformOrigin: 'center center',
                   }}
                   onClick={() => {
+                    if (isAddCard) {
+                      onOpenAddLedger();
+                      return;
+                    }
+
                     if (!isExpanded) {
                       if (isSelected) {
                         setIsExpanded(true);
-                      } else {
+                      } else if (ledger) {
                         onSelectLedger(ledger);
                       }
                     } else {
-                      if (!isSelected) {
+                      if (isSelected) {
+                        // Clicking current active book in expanded mode flips open active notes!
+                        setIsExpanded(false);
+                      } else if (ledger) {
                         onSelectLedger(ledger);
                       }
                     }
@@ -287,62 +261,82 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
                       : ''
                   }`}
                 >
-                  {/* Shadow Layer */}
-                  <motion.div
-                    animate={{
-                      boxShadow: isExpanded
-                        ? isSelected
-                          ? '0 30px 56px -12px rgba(28, 18, 10, 0.44), 0 10px 20px -4px rgba(20, 14, 8, 0.26)'
-                          : '0 16px 32px -8px rgba(28, 18, 10, 0.32)'
-                        : '0 2px 8px rgba(35, 25, 18, 0.22)',
-                    }}
-                    transition={smoothTransition}
-                    className="w-full h-full relative rounded-[4px] overflow-hidden bg-[#2C241E]"
-                  >
-                    {/* Cover Image */}
-                    <img
-                      src={ledger.coverImage}
-                      alt={ledger.name}
-                      className="w-full h-full object-cover select-none"
-                      referrerPolicy="no-referrer"
-                    />
+                  {isAddCard ? (
+                    /* "+ 新建" Special Add Book Item */
+                    <motion.div
+                      animate={{
+                        boxShadow: isExpanded
+                          ? '0 12px 28px -6px rgba(28, 18, 10, 0.18)'
+                          : '0 2px 6px rgba(35, 25, 18, 0.12)',
+                      }}
+                      transition={smoothTransition}
+                      className="w-full h-full relative rounded-[4px] border-2 border-dashed border-[#B8AA98] hover:border-[#2C241E] bg-[#FAF7F2] hover:bg-[#F3EDE2] flex flex-col items-center justify-center transition-colors text-[#6E6254] hover:text-[#2C241E]"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[#EAE3D6] flex items-center justify-center mb-1">
+                        <Plus size={18} strokeWidth={2.4} />
+                      </div>
+                      <span className="font-serif-sc text-[11px] font-medium tracking-wide">
+                        装订新卷
+                      </span>
+                    </motion.div>
+                  ) : (
+                    /* Standard Ledger Book */
+                    <motion.div
+                      animate={{
+                        boxShadow: isExpanded
+                          ? isSelected
+                            ? '0 30px 56px -12px rgba(28, 18, 10, 0.44), 0 10px 20px -4px rgba(20, 14, 8, 0.26)'
+                            : '0 16px 32px -8px rgba(28, 18, 10, 0.32)'
+                          : '0 2px 8px rgba(35, 25, 18, 0.22)',
+                      }}
+                      transition={smoothTransition}
+                      className="w-full h-full relative rounded-[4px] overflow-hidden bg-[#2C241E]"
+                    >
+                      {/* Cover Image */}
+                      <img
+                        src={ledger?.coverImage}
+                        alt={ledger?.name}
+                        className="w-full h-full object-cover select-none"
+                        referrerPolicy="no-referrer"
+                      />
 
-                    {/* Left Spine Groove */}
-                    <div className="absolute left-0 inset-y-0 w-3 bg-gradient-to-r from-black/60 via-black/25 to-transparent pointer-events-none" />
-                    <div className="absolute left-2.5 inset-y-0 w-[0.75px] bg-white/20 pointer-events-none" />
+                      {/* Left Spine Groove */}
+                      <div className="absolute left-0 inset-y-0 w-3 bg-gradient-to-r from-black/60 via-black/25 to-transparent pointer-events-none" />
+                      <div className="absolute left-2.5 inset-y-0 w-[0.75px] bg-white/20 pointer-events-none" />
 
-                    {/* Right Paper Edge Layering */}
-                    <div className="absolute right-0 inset-y-1 w-[2.5px] bg-[#EFE8DC] border-l border-black/20 pointer-events-none rounded-r-[0.5px]" />
+                      {/* Right Paper Edge Layering */}
+                      <div className="absolute right-0 inset-y-1 w-[2.5px] bg-[#EFE8DC] border-l border-black/20 pointer-events-none rounded-r-[0.5px]" />
 
-                    {/* Ambient Lighting */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-white/25 pointer-events-none" />
+                      {/* Ambient Lighting */}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-white/25 pointer-events-none" />
 
-                    {/* Cover Typography */}
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent pt-6 pb-2 px-2 text-center flex flex-col items-center justify-end">
-                      <motion.span
-                        animate={{
-                          fontSize: isExpanded && isSelected ? 17 : 10,
-                          letterSpacing: isExpanded && isSelected ? '0.08em' : '0.02em',
-                        }}
-                        transition={smoothTransition}
-                        className="font-serif-sc text-white font-semibold leading-tight drop-shadow-md truncate max-w-full"
-                      >
-                        {ledger.name}
-                      </motion.span>
+                      {/* Cover Typography */}
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent pt-6 pb-2 px-2 text-center flex flex-col items-center justify-end">
+                        <motion.span
+                          animate={{
+                            fontSize: isExpanded && isSelected ? 17 : 10,
+                            letterSpacing: isExpanded && isSelected ? '0.08em' : '0.02em',
+                          }}
+                          transition={smoothTransition}
+                          className="font-serif-sc text-white font-semibold leading-tight drop-shadow-md truncate max-w-full"
+                        >
+                          {ledger?.name}
+                        </motion.span>
 
-                      <motion.p
-                        animate={{
-                          opacity: isExpanded && isSelected ? 0.85 : 0,
-                          height: isExpanded && isSelected ? 'auto' : 0,
-                          marginTop: isExpanded && isSelected ? 4 : 0,
-                        }}
-                        transition={smoothTransition}
-                        className="font-serif-sc text-[11px] text-white/90 truncate max-w-full px-1 overflow-hidden"
-                      >
-                        {ledger.subtitle || '在地球的日子'}
-                      </motion.p>
-                    </div>
-                  </motion.div>
+                        <motion.p
+                          animate={{
+                            opacity: isExpanded && isSelected ? 0.85 : 0,
+                            height: isExpanded && isSelected ? 'auto' : 0,
+                            marginTop: isExpanded && isSelected ? 4 : 0,
+                          }}
+                          transition={smoothTransition}
+                          className="font-serif-sc text-[11px] text-white/90 truncate max-w-full px-1 overflow-hidden"
+                        >
+                          {ledger?.subtitle || '在地球的日子'}
+                        </motion.p>
+                      </div>
+                    </motion.div>
+                  )}
                 </motion.div>
               );
             })}
@@ -371,7 +365,7 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
               《{currentLedger.name}》
             </h2>
             <p className="font-serif-sc text-xs text-[#6B5E51] mt-1 line-clamp-2 max-w-sm mx-auto leading-relaxed">
-              {currentLedger.description || '记录在此颗星球上的微风、黄昏与温存。'}
+              {currentLedger.subtitle || '记录在此颗星球上的微风、黄昏与温存。'}
             </p>
           </div>
 
@@ -387,13 +381,14 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
               <ChevronLeft size={18} />
             </button>
 
+            {/* Bottom Edit Info Button (reuses Create/Edit Ledger Modal) */}
             <button
               type="button"
-              onClick={() => setIsExpanded(false)}
+              onClick={() => onEditLedger && onEditLedger(currentLedger)}
               className="px-5 py-2 rounded-full bg-[#2C241E] text-[#FAF7F2] hover:bg-[#8A2B20] text-xs font-serif-sc font-medium shadow-[0_2px_10px_rgba(40,30,20,0.18)] flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
             >
-              <ChevronUp size={15} strokeWidth={2.4} />
-              <span>翻开本卷日记</span>
+              <Pencil size={14} strokeWidth={2} />
+              <span>编辑信息</span>
             </button>
 
             <button

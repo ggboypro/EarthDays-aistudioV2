@@ -164,6 +164,15 @@ class DiaryRepository {
     this.notify();
   }
 
+  public updateLedger(updated: Ledger) {
+    const idx = this.ledgers.findIndex(l => l.id === updated.id);
+    if (idx !== -1) {
+      this.ledgers[idx] = updated;
+      this.saveLedgers();
+      this.notify();
+    }
+  }
+
   // Diary Entry queries
   public getEntriesByLedger(ledgerId?: string): DiaryEntry[] {
     const targetId = ledgerId || this.currentLedgerId;

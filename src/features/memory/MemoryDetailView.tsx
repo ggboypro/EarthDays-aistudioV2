@@ -3,6 +3,7 @@ import { Memory, BookDraft, BookChapter, BookPageSlot } from '../../core/types/b
 import { DiaryEntry } from '../../core/types/diary';
 import { diaryRepo } from '../../core/storage/diaryRepository';
 import { PaperSheet } from '../../design-system/paper/PaperSheet';
+import { PaperGrainOverlay } from '../../design-system/paper/PaperGrainOverlay';
 import { PhotoPrint } from '../../design-system/photo/PhotoPrint';
 import { UnifiedTopNav } from '../../design-system/navigation/UnifiedTopNav';
 import { motion } from 'motion/react';
@@ -120,7 +121,9 @@ export const MemoryDetailView: React.FC<MemoryDetailViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen pb-28 bg-[#F7F4EE]">
+    <div className="min-h-screen pb-28 bg-[#FAF8F2] relative overflow-hidden">
+      <PaperGrainOverlay hasHighlightBorder={false} />
+      <div className="relative z-10 flex flex-col min-h-screen">
       {/* Unified Top Navigation */}
       <UnifiedTopNav
         title="我在地球的日子"
@@ -221,6 +224,7 @@ export const MemoryDetailView: React.FC<MemoryDetailViewProps> = ({
           ))}
         </div>
       </motion.div>
+      </div>
       </div>
     </div>
   );

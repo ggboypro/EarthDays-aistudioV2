@@ -13,6 +13,7 @@ import { ProfileDeskView } from './features/profile/ProfileDeskView';
 import { WelcomeView } from './features/onboarding/WelcomeView';
 import { MemoryDetailView } from './features/memory/MemoryDetailView';
 import { BookReaderView } from './features/publishing/BookReaderView';
+import { PaperGrainOverlay } from './design-system/paper/PaperGrainOverlay';
 import { AnimatePresence, motion } from 'motion/react';
 
 function AppContent() {
@@ -51,8 +52,9 @@ function AppContent() {
       style={{ backgroundColor: '#F2EEE6', color: '#302820' }}
       className="min-h-screen font-sans antialiased relative transition-colors duration-300 select-none sm:select-auto"
     >
-      {/* Background ambient lighting pattern */}
-      <div className="fixed inset-0 bg-gradient-to-b from-white/10 to-black/5 pointer-events-none" />
+      {/* Background ambient lighting pattern & global paper texture material */}
+      <div className="fixed inset-0 bg-gradient-to-b from-white/10 to-black/5 pointer-events-none z-0" />
+      <PaperGrainOverlay hasHighlightBorder={false} className="fixed inset-0 z-0 pointer-events-none" />
 
       {/* Main Container - Full viewport responsive workspace */}
       <div className="relative z-10 w-full min-h-screen flex flex-col">

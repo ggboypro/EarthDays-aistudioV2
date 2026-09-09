@@ -5,6 +5,7 @@ import React from 'react';
 import { DiaryEntry } from '../../../core/types/diary';
 import { SpatialCardProps } from './GallerySpatialEngine';
 import { GalleryCardContent } from './GalleryCardContent';
+import { PaperGrainOverlay } from '../../../design-system/paper/PaperGrainOverlay';
 import { motion } from 'motion/react';
 
 interface GalleryCardProps {
@@ -74,13 +75,10 @@ export const GalleryCard: React.FC<GalleryCardProps> = ({
         {/* Physical Paper Sheet */}
         <motion.div
           layoutId={`diary-card-${entry.id}`}
-          className={`w-full h-full bg-[#FAF7F2] rounded-[5px] border border-[#E3DAC9] ${shadowClass} relative overflow-hidden flex flex-col`}
+          className={`w-full h-full bg-[#FAF8F2] rounded-[5px] border border-[#E3DAC9] ${shadowClass} relative overflow-hidden flex flex-col`}
         >
-          {/* Subtle interior highlight border */}
-          <div className="absolute inset-0 rounded-[4px] border border-white/70 pointer-events-none" />
-
-          {/* Paper texture overlay */}
-          <div className="absolute inset-0 paper-grain opacity-35 pointer-events-none" />
+          {/* Design System Unified Paper Grain Material Layer */}
+          <PaperGrainOverlay />
 
           {/* Content View */}
           <div className="relative z-10 w-full h-full">

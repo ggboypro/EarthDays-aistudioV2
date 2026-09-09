@@ -7,6 +7,7 @@ import { DiaryEntry, MoodType } from '../../core/types/diary';
 import { PhotoAsset } from '../../core/types/photo';
 import { diaryRepo } from '../../core/storage/diaryRepository';
 import { MOOD_PRESETS, MoodStamp } from '../../design-system/elements/MoodStamp';
+import { PaperGrainOverlay } from '../../design-system/paper/PaperGrainOverlay';
 import { useTheme } from '../../core/theme/ThemeContext';
 import { motion } from 'motion/react';
 import { MapPin, Sun, ChevronDown, ChevronRight, X } from 'lucide-react';
@@ -311,11 +312,14 @@ export const WriteDiaryView: React.FC<WriteDiaryViewProps> = ({
         }}
         className="relative w-full max-w-[480px] bg-[#F3EEE4] rounded-[32px] p-2.5 border border-[#E2D7C5] shadow-[0_24px_60px_-12px_rgba(35,28,20,0.32)] flex flex-col my-auto max-h-[92vh] overflow-hidden"
       >
+        <PaperGrainOverlay />
+
         {/* 
           Inner Floating Card Layer (里层悬浮的日记纸张卡片)
-          Features delicate dot matrix grain texture (paper-dot-grain)
+          Features delicate micro-grain SVG texture
         */}
-        <div className="w-full h-full rounded-[24px] bg-[#FAF5EC] paper-dot-grain border border-[#EAE1D1] shadow-inner-card-float flex flex-col relative overflow-hidden">
+        <div className="w-full h-full rounded-[24px] bg-[#FAF8F2] border border-[#EAE1D1] shadow-inner-card-float flex flex-col relative overflow-hidden">
+          <PaperGrainOverlay />
           
           {/* 1. Header Bar: 取消  写日记  [悬浮发布按钮] */}
           <header className="px-6 py-4 flex items-center justify-between border-b border-[#E7DEC8] shrink-0 bg-[#FAF5EC]/90 backdrop-blur-xs z-20">

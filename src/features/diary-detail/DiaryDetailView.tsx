@@ -10,6 +10,7 @@ import { MoodStamp, LocationBadge } from '../../design-system/elements/MoodStamp
 import { BookmarkRibbon } from '../../design-system/elements/Bookmark';
 import { MoreDotsIcon } from '../../design-system/icons/EarthDiaryIcons';
 import { UnifiedTopNav } from '../../design-system/navigation/UnifiedTopNav';
+import { PaperGrainOverlay } from '../../design-system/paper/PaperGrainOverlay';
 import { useTheme } from '../../core/theme/ThemeContext';
 import { motion, useMotionValue, useTransform, animate, PanInfo } from 'motion/react';
 
@@ -214,7 +215,9 @@ export const DiaryDetailView: React.FC<DiaryDetailViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F4EE] flex flex-col justify-start pb-24">
+    <div className="min-h-screen bg-[#FAF8F2] relative flex flex-col justify-start pb-24 overflow-hidden">
+      <PaperGrainOverlay hasHighlightBorder={false} />
+      <div className="relative z-10 flex flex-col min-h-screen">
       {/* 1. Unified Top Navigation (二级页统一Nav) */}
       <UnifiedTopNav
         title="我在地球的日子"
@@ -391,6 +394,7 @@ export const DiaryDetailView: React.FC<DiaryDetailViewProps> = ({
             </motion.div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

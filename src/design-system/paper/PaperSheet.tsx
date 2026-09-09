@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from '../../core/theme/ThemeContext';
+import { PaperGrainOverlay } from './PaperGrainOverlay';
 
 interface PaperSheetProps {
   children: React.ReactNode;
@@ -18,23 +18,22 @@ export const PaperSheet: React.FC<PaperSheetProps> = ({
   onClick,
   style,
 }) => {
-  const { theme } = useTheme();
-
   return (
     <div
       onClick={onClick}
       style={{
-        backgroundColor: theme.paper,
-        borderColor: theme.paperBorder,
+        backgroundColor: '#FAF8F2',
+        borderColor: '#DED6C9',
         ...style,
       }}
-      className={`relative transition-all duration-200 border rounded-[3px] shadow-paper-l1 paper-grain ${
+      className={`relative transition-all duration-200 border rounded-[14px] shadow-paper-l1 overflow-hidden ${
         hasDeckleEdge ? 'torn-paper-edge-bottom' : ''
       } ${className}`}
     >
-      {/* Subtle top ambient highlight */}
-      <div className="absolute inset-x-0 top-0 h-[1px] bg-white/60 pointer-events-none rounded-t-[3px]" />
-      {children}
+      {/* Design System Unified Paper Grain Material Layer */}
+      <PaperGrainOverlay />
+
+      <div className="relative z-10">{children}</div>
     </div>
   );
 };

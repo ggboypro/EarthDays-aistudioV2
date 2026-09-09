@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Ledger } from '../../core/types/ledger';
 import { generateThemeFromCover } from '../../core/theme/colorExtractor';
 import { diaryRepo } from '../../core/storage/diaryRepository';
+import { PaperGrainOverlay } from '../../design-system/paper/PaperGrainOverlay';
 import { motion } from 'motion/react';
 
 interface CreateLedgerModalProps {
@@ -87,8 +88,10 @@ export const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md bg-[#FBF8F2] rounded-[24px] border border-[#DED6C9] shadow-[0_16px_36px_-6px_rgba(35,28,20,0.16)] p-6 overflow-hidden"
+        className="relative w-full max-w-md bg-[#FAF8F2] rounded-[24px] border border-[#DED6C9] shadow-[0_16px_36px_-6px_rgba(35,28,20,0.16)] p-6 overflow-hidden"
       >
+        <PaperGrainOverlay />
+        <div className="relative z-10">
         <div className="flex items-center justify-between pb-3 border-b border-[#E5DDD1] mb-4">
           <h2 className="font-serif-sc text-[17px] font-medium text-[#302820]">
             {ledgerToEdit ? '修改账本信息' : '拿出一本空白账本'}
@@ -206,6 +209,7 @@ export const CreateLedgerModal: React.FC<CreateLedgerModalProps> = ({
           >
             {ledgerToEdit ? '保存修改' : '放入书架并开始书写'}
           </button>
+        </div>
         </div>
       </motion.div>
     </div>

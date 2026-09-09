@@ -8,9 +8,9 @@ export const colorTokens = {
   deskWarm: '#F5F1E9',
 
   // 2. Paper & Surfaces
-  paper: '#FBF8F2',
+  paper: '#FAF8F2',
   paperAlt: '#F5F0E6',
-  paperCard: '#FAF7F1',
+  paperCard: '#FAF8F2',
   control: '#FAF7F1',
   controlHover: '#F2EBDC',
   controlActive: '#E8DFC2',

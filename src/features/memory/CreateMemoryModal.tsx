@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Memory } from '../../core/types/book';
 import { diaryRepo } from '../../core/storage/diaryRepository';
+import { PaperGrainOverlay } from '../../design-system/paper/PaperGrainOverlay';
 import { motion } from 'motion/react';
 
 interface CreateMemoryModalProps {
@@ -72,8 +73,10 @@ export const CreateMemoryModal: React.FC<CreateMemoryModalProps> = ({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 12 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md bg-[#FBF8F2] rounded-[24px] border border-[#DED6C9] shadow-[0_16px_36px_-6px_rgba(35,28,20,0.16)] p-6 overflow-y-auto max-h-[90vh]"
+        className="relative w-full max-w-md bg-[#FAF8F2] rounded-[24px] border border-[#DED6C9] shadow-[0_16px_36px_-6px_rgba(35,28,20,0.16)] p-6 overflow-y-auto max-h-[90vh]"
       >
+        <PaperGrainOverlay />
+        <div className="relative z-10">
         <div className="flex items-center justify-between pb-3 border-b border-[#E5DDD1] mb-4">
           <div>
             <h3 className="font-serif-sc text-[17px] font-medium text-[#302820]">
@@ -180,6 +183,7 @@ export const CreateMemoryModal: React.FC<CreateMemoryModalProps> = ({
           >
             收录为一段记忆
           </button>
+        </div>
         </div>
       </motion.div>
     </div>

@@ -3,6 +3,7 @@ import { diaryRepo } from '../../core/storage/diaryRepository';
 import { DiaryEntry } from '../../core/types/diary';
 import { Memory, BookDraft } from '../../core/types/book';
 import { PaperSheet } from '../../design-system/paper/PaperSheet';
+import { PaperGrainOverlay } from '../../design-system/paper/PaperGrainOverlay';
 import { CreateMemoryModal } from '../memory/CreateMemoryModal';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -36,8 +37,10 @@ export const AlbumView: React.FC<AlbumViewProps> = ({
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 30 }}
-        className="relative w-full max-w-lg mx-auto bg-[#FBF8F3] rounded-t-[16px] sm:rounded-[8px] border border-[#DDD4C6] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
+        className="relative w-full max-w-lg mx-auto bg-[#FAF8F2] rounded-t-[16px] sm:rounded-[8px] border border-[#DDD4C6] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
       >
+        <PaperGrainOverlay />
+        <div className="relative z-10 flex flex-col h-full overflow-hidden">
         {/* Header */}
         <header className="px-5 pt-4 pb-2 border-b border-[#EAE2D5] bg-[#FAF7F2]">
           <div className="flex items-center justify-between">
@@ -237,6 +240,7 @@ export const AlbumView: React.FC<AlbumViewProps> = ({
             }}
           />
         )}
+        </div>
       </motion.div>
     </div>
   );

@@ -3,6 +3,7 @@ import { Ledger } from '../../core/types/ledger';
 import { diaryRepo } from '../../core/storage/diaryRepository';
 import { useTheme } from '../../core/theme/ThemeContext';
 import { CreateLedgerModal } from './CreateLedgerModal';
+import { PaperGrainOverlay } from '../../design-system/paper/PaperGrainOverlay';
 import { motion } from 'motion/react';
 
 interface BookshelfViewProps {
@@ -34,6 +35,8 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
         exit={{ opacity: 0, y: 30 }}
         className="relative w-full max-w-lg mx-auto bg-[#ECE5DA] rounded-t-[16px] sm:rounded-[8px] border border-[#D5CBBF] shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
       >
+        <PaperGrainOverlay />
+        <div className="relative z-10 flex flex-col h-full overflow-hidden">
         {/* 04 我的账本 顶部标题与副标题 */}
         <header className="px-6 pt-5 pb-3 border-b border-[#DDD4C6] bg-[#FAF7F2] flex items-start justify-between">
           <div>
@@ -153,6 +156,7 @@ export const BookshelfView: React.FC<BookshelfViewProps> = ({
             }}
           />
         )}
+        </div>
       </motion.div>
     </div>
   );

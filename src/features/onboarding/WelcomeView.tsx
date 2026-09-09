@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { WaxSealBadge } from '../../design-system/icons/EarthDiaryIcons';
+import { PaperGrainOverlay } from '../../design-system/paper/PaperGrainOverlay';
 
 interface WelcomeViewProps {
   onStart: () => void;
@@ -8,7 +9,9 @@ interface WelcomeViewProps {
 
 export const WelcomeView: React.FC<WelcomeViewProps> = ({ onStart }) => {
   return (
-    <div className="fixed inset-0 z-50 bg-[#F4EFE6] text-[#2C241E] flex flex-col justify-between p-6 max-w-md mx-auto overflow-hidden paper-grain select-none">
+    <div className="fixed inset-0 z-50 bg-[#FAF8F2] text-[#2C241E] flex flex-col justify-between p-6 max-w-md mx-auto overflow-hidden select-none">
+      <PaperGrainOverlay />
+      <div className="relative z-10 flex flex-col justify-between h-full">
       {/* Top Brand Ornament & English Subtitle */}
       <motion.div
         initial={{ opacity: 0, y: -15 }}
@@ -75,6 +78,7 @@ export const WelcomeView: React.FC<WelcomeViewProps> = ({ onStart }) => {
           本地隐私优先存储 · 随时导出与打样装订
         </p>
       </motion.div>
+      </div>
     </div>
   );
 };

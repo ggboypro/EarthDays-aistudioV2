@@ -7,6 +7,13 @@
     --font-hand: 'Ma Shan Zheng', cursive;
     --font-editorial: 'Playfair Display', serif;
     --font-classical: 'Cinzel', serif;
+
+    /* EarthDays Ink & Paper tokens */
+    --ed-ink-1: #2C241E;
+    --ed-ink-2: #63574A;
+    --ed-ink-3: #8C8072;
+    --ed-paper: #FAF8F2;
+    --ed-paper-dark: #F2EEE6;
   }
 
   body {

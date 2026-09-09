@@ -7,9 +7,11 @@ import { DiaryEntry } from '../../core/types/diary';
 import { diaryRepo } from '../../core/storage/diaryRepository';
 import { LedgerPresentationStage } from './components/LedgerPresentationStage';
 import { MemoryGallery } from './gallery/MemoryGallery';
+import { DiaryVerticalFeed } from './components/DiaryVerticalFeed';
+import { DiaryViewModeButton, DiaryViewMode } from './components/DiaryViewModeButton';
 import { CreateLedgerModal } from '../ledger/CreateLedgerModal';
 import { useTheme } from '../../core/theme/ThemeContext';
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 
 interface DiaryHomeViewProps {
   onOpenBookshelf: () => void;
@@ -28,7 +30,20 @@ export const DiaryHomeView: React.FC<DiaryHomeViewProps> = ({
 }) => {
   const { setTheme } = useTheme();
 
-  // Ledger & Diary Repository State
+  // View Mode: 'horizontal' | 'vertical' (UI Preference, stored in localStorage)
+  const [viewMode, setViewMode] = useState<DiaryViewMode>(() => {
+    try {
+      const saved = localStorage.getItem('earthdays_diary_view_mode');
+      if (saved === 'vertical' || saved === 'horizontal') {
+        return saved;
+      }
+    } catch {
+      // localStorage unavailable or security blocked
+    }
+    return 'horizontal';
+  });
+
+  // Ledger & Diary Repository State (Single source of truth)
   const [ledgers, setLedgers] = useState<Ledger[]>(diaryRepo.getLedgers());
   const [currentLedger, setCurrentLedger] = useState<Ledger>(diaryRepo.getCurrentLedger());
   const [entries, setEntries] = useState<DiaryEntry[]>(diaryRepo.getEntriesByLedger(currentLedger.id));
@@ -84,9 +99,22 @@ export const DiaryHomeView: React.FC<DiaryHomeViewProps> = ({
     diaryRepo.toggleFavorite(id);
   };
 
+  // Toggle View Mode between Horizontal and Vertical
+  const handleToggleViewMode = () => {
+    setViewMode((prev) => {
+      const next: DiaryViewMode = prev === 'horizontal' ? 'vertical' : 'horizontal';
+      try {
+        localStorage.setItem('earthdays_diary_view_mode', next);
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="w-full min-h-[calc(100vh-70px)] flex flex-col justify-between overflow-x-hidden relative">
-      {/* 1. SHARED SPATIAL PRESENTATION STAGE (Houses Ledger Shelf, Focus Stage & Core Gallery) */}
+      {/* 1. SHARED SPATIAL PRESENTATION STAGE (Houses Ledger Shelf, Focus Stage, View Mode Button & Diary Content) */}
       <LedgerPresentationStage
         ledgers={ledgers}
         currentLedgerId={currentLedger.id}
@@ -99,17 +127,54 @@ export const DiaryHomeView: React.FC<DiaryHomeViewProps> = ({
           setEditingLedger(ledger);
           setShowCreateModal(true);
         }}
+        headerRight={
+          <DiaryViewModeButton
+            mode={viewMode}
+            onToggle={handleToggleViewMode}
+          />
+        }
       >
-        {/* Core Memory Gallery: Always mounted, horizontal physics and card positions completely preserved */}
-        <MemoryGallery
-          entries={entries}
-          currentId={currentEntryId}
-          newlyInsertedId={newlyInsertedId}
-          onSelectId={setCurrentEntryId}
-          onEntryClick={onEntryClick}
-          onToggleFavorite={handleToggleFavorite}
-          onWriteClick={onWriteClick}
-        />
+        {/* Core Diary Content: Smoothly switches renderer with subtle opacity/scale transition */}
+        <AnimatePresence mode="wait" initial={false}>
+          {viewMode === 'horizontal' ? (
+            <motion.div
+              key="horizontal-gallery"
+              initial={{ opacity: 0, scale: 0.99 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.99 }}
+              transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full flex-1 flex flex-col items-center justify-start"
+            >
+              <MemoryGallery
+                entries={entries}
+                currentId={currentEntryId}
+                newlyInsertedId={newlyInsertedId}
+                onSelectId={setCurrentEntryId}
+                onEntryClick={onEntryClick}
+                onToggleFavorite={handleToggleFavorite}
+                onWriteClick={onWriteClick}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="vertical-feed"
+              initial={{ opacity: 0, scale: 0.99 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.99 }}
+              transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full flex-1 flex flex-col items-center justify-start"
+            >
+              <DiaryVerticalFeed
+                entries={entries}
+                currentId={currentEntryId}
+                onSelectId={setCurrentEntryId}
+                onEntryClick={onEntryClick}
+                onToggleFavorite={handleToggleFavorite}
+                onWriteClick={onWriteClick}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </LedgerPresentationStage>
 
       {/* 2. Create / Edit Ledger Modal */}

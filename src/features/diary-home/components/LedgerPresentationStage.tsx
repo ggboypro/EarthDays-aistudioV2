@@ -21,7 +21,8 @@ interface LedgerPresentationStageProps {
   onSelectLedger: (ledger: Ledger) => void;
   onOpenAddLedger: () => void;
   onEditLedger?: (ledger: Ledger) => void;
-  children: React.ReactNode; // Core Memory Gallery
+  headerRight?: React.ReactNode;
+  children: React.ReactNode; // Core Memory Gallery or Vertical Feed
 }
 
 export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = ({
@@ -30,6 +31,7 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
   onSelectLedger,
   onOpenAddLedger,
   onEditLedger,
+  headerRight,
   children,
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -98,8 +100,8 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
           </span>
         </div>
 
-        {/* Right: Show collapse button only when expanded */}
-        {isExpanded && (
+        {/* Right: Show collapse button when expanded, or headerRight (ViewModeButton) when collapsed */}
+        {isExpanded ? (
           <button
             type="button"
             onClick={() => setIsExpanded(false)}
@@ -108,6 +110,8 @@ export const LedgerPresentationStage: React.FC<LedgerPresentationStageProps> = (
             <ChevronUp size={14} strokeWidth={2.4} />
             <span>收起</span>
           </button>
+        ) : (
+          headerRight
         )}
       </div>
 

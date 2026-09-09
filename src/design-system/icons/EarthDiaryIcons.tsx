@@ -142,3 +142,31 @@ export const WaxSealBadge: React.FC<{ size?: number; className?: string }> = ({ 
     </div>
   </div>
 );
+
+// 15. 横向展厅视图模式图标 (Horizontal Gallery Mode)
+export const HorizontalGalleryViewIcon: React.FC<IconProps> = ({ size = 21, className = '', color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+    {/* Center prominent card */}
+    <rect x="7" y="4" width="10" height="16" rx="1.5" />
+    {/* Left neighbor card hint */}
+    <path d="M3 6.5v11" strokeWidth="1.4" opacity="0.65" />
+    {/* Right neighbor card hint */}
+    <path d="M21 6.5v11" strokeWidth="1.4" opacity="0.65" />
+    {/* Inner card subtle photo & text line */}
+    <line x1="10" y1="8" x2="14" y2="8" strokeWidth="1.3" opacity="0.5" />
+    <line x1="10" y1="12" x2="14" y2="12" strokeWidth="1.3" opacity="0.5" />
+  </svg>
+);
+
+// 16. 纵向时间流视图模式图标 (Vertical Feed Mode)
+export const VerticalFeedViewIcon: React.FC<IconProps> = ({ size = 21, className = '', color = 'currentColor', ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+    {/* Top card block */}
+    <rect x="4" y="3.5" width="16" height="7.5" rx="1.5" />
+    <line x1="8" y1="7.25" x2="16" y2="7.25" strokeWidth="1.4" />
+    {/* Bottom card block */}
+    <rect x="4" y="13" width="16" height="7.5" rx="1.5" />
+    <line x1="8" y1="16.75" x2="13" y2="16.75" strokeWidth="1.4" />
+  </svg>
+);
+

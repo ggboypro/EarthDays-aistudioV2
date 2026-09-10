@@ -312,6 +312,11 @@ export const WriteDiaryView: React.FC<WriteDiaryViewProps> = ({
         }}
         className="relative w-full max-w-[480px] bg-[#F3EEE4] rounded-[32px] p-2.5 border border-[#E2D7C5] shadow-[0_24px_60px_-12px_rgba(35,28,20,0.32)] flex flex-col my-auto max-h-[92vh] overflow-hidden"
       >
+        {/* Outer Background Texture backage.png */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-40"
+          style={{ backgroundImage: "url('/assets/backage.png')" }}
+        />
         <PaperGrainOverlay />
 
         {/* 
@@ -319,6 +324,12 @@ export const WriteDiaryView: React.FC<WriteDiaryViewProps> = ({
           Features delicate micro-grain SVG texture
         */}
         <div className="w-full h-full rounded-[24px] bg-[#FAF8F2] border border-[#EAE1D1] shadow-inner-card-float flex flex-col relative overflow-hidden">
+          {/* Inner Background Texture backage.png */}
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-45"
+            style={{ backgroundImage: "url('/assets/backage.png')" }}
+          />
+          <div className="absolute inset-0 bg-[#FAF8F2]/75 pointer-events-none" />
           <PaperGrainOverlay />
           
           {/* 1. Header Bar: 取消  写日记  [悬浮发布按钮] */}

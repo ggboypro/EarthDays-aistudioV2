@@ -75,6 +75,12 @@ export const CreateMemoryModal: React.FC<CreateMemoryModalProps> = ({
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-md bg-[#FAF8F2] rounded-[24px] border border-[#DED6C9] shadow-[0_16px_36px_-6px_rgba(35,28,20,0.16)] p-6 overflow-y-auto max-h-[90vh]"
       >
+        {/* Background Texture backage.png */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-50"
+          style={{ backgroundImage: "url('/assets/backage.png')" }}
+        />
+        <div className="absolute inset-0 bg-[#FAF8F2]/75 pointer-events-none" />
         <PaperGrainOverlay />
         <div className="relative z-10">
         <div className="flex items-center justify-between pb-3 border-b border-[#E5DDD1] mb-4">

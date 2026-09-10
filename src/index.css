@@ -8,20 +8,26 @@
     --font-editorial: 'Playfair Display', serif;
     --font-classical: 'Cinzel', serif;
 
-    /* EarthDays Ink & Paper tokens */
-    --ed-ink-1: #2C241E;
-    --ed-ink-2: #63574A;
-    --ed-ink-3: #8C8072;
-    --ed-paper: #FAF8F2;
-    --ed-paper-dark: #F2EEE6;
+    /* EarthDays Ink & Paper tokens (Warm Old Parchment & Kraft Tone) */
+    --ed-ink-1: #28201A;
+    --ed-ink-2: #594D41;
+    --ed-ink-3: #847769;
+    --ed-paper: #EFE7DB;
+    --ed-paper-dark: #E6DDCF;
+    --ed-paper-warm: #EADFCF;
   }
 
   body {
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #F2EEE6;
-    color: #302820;
+    background-color: #ECE3D4;
+    background-image: url('/assets/backage.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: #2D241C;
     overflow-x: hidden;
   }
 }

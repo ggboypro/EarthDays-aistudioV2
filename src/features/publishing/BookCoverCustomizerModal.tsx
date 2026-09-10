@@ -66,8 +66,15 @@ export const BookCoverCustomizerModal: React.FC<BookCoverCustomizerModalProps> =
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-md bg-[#FAF7F2] rounded-[8px] border border-[#D5CBBF] shadow-2xl p-6 overflow-y-auto max-h-[90vh]"
+        className="relative w-full max-w-md bg-[#FAF7F2] rounded-[12px] border border-[#D5CBBF] shadow-2xl p-6 overflow-y-auto max-h-[90vh]"
       >
+        {/* Background Texture backage.png */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-50"
+          style={{ backgroundImage: "url('/assets/backage.png')" }}
+        />
+        <div className="absolute inset-0 bg-[#FAF7F2]/75 pointer-events-none" />
+        <div className="relative z-10">
         <div className="flex items-center justify-between pb-3 border-b border-[#EAE2D5] mb-4">
           <div>
             <h3 className="font-serif-sc text-[16.5px] font-bold text-[#2C241E]">
@@ -195,6 +202,7 @@ export const BookCoverCustomizerModal: React.FC<BookCoverCustomizerModalProps> =
           >
             保存装帧设定
           </button>
+        </div>
         </div>
       </motion.div>
     </div>

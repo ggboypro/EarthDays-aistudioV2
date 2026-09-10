@@ -239,9 +239,16 @@ export const BookReaderView: React.FC<BookReaderViewProps> = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md bg-[#FAF7F2] text-[#2C241E] rounded-[8px] border border-[#D5CBBF] shadow-2xl p-6 font-serif-sc"
+            className="relative w-full max-w-md bg-[#FAF7F2] text-[#2C241E] rounded-[12px] border border-[#D5CBBF] shadow-2xl p-6 font-serif-sc overflow-hidden"
           >
-            <div className="text-center pb-4 border-b border-[#EAE2D5]">
+            {/* Background Texture backage.png */}
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-50"
+              style={{ backgroundImage: "url('/assets/backage.png')" }}
+            />
+            <div className="absolute inset-0 bg-[#FAF7F2]/75 pointer-events-none" />
+            <div className="relative z-10">
+              <div className="text-center pb-4 border-b border-[#EAE2D5]">
               <div className="w-12 h-12 rounded-full bg-[#EAE2D5] flex items-center justify-center text-[22px] mx-auto mb-2">
                 📦
               </div>
@@ -290,6 +297,7 @@ export const BookReaderView: React.FC<BookReaderViewProps> = ({
               >
                 稍后再说
               </button>
+            </div>
             </div>
           </motion.div>
         </div>

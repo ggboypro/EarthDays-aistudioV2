@@ -49,12 +49,19 @@ function AppContent() {
 
   return (
     <div
-      style={{ backgroundColor: '#F2EEE6', color: '#302820' }}
-      className="min-h-screen font-sans antialiased relative transition-colors duration-300 select-none sm:select-auto"
+      style={{ color: '#302820' }}
+      className="min-h-screen font-sans antialiased relative transition-colors duration-300 select-none sm:select-auto bg-transparent"
     >
-      {/* Background ambient lighting pattern & global paper texture material */}
-      <div className="fixed inset-0 bg-gradient-to-b from-white/10 to-black/5 pointer-events-none z-0" />
-      <PaperGrainOverlay hasHighlightBorder={false} className="fixed inset-0 z-0 pointer-events-none" />
+      {/* Global Background Layer with backage.png */}
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none z-0"
+        style={{
+          backgroundImage: "url('/assets/backage.png')",
+        }}
+      />
+      {/* Subtle ambient lighting layer */}
+      <div className="fixed inset-0 bg-black/[0.02] pointer-events-none z-0" />
+      <PaperGrainOverlay hasHighlightBorder={false} className="fixed inset-0 z-0 pointer-events-none opacity-20" />
 
       {/* Main Container - Full viewport responsive workspace */}
       <div className="relative z-10 w-full min-h-screen flex flex-col">
